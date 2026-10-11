@@ -36,6 +36,91 @@ describe('interactive lessons', () => {
     expect(container.querySelector('.katex-error')).toBeNull();
     expect(container.querySelector('math')).not.toBeNull();
   });
+  it('keeps the message from step one after trying decoding presets', async () => {
+    const user = userEvent.setup();
+    start();
+    const first = await screen.findByRole('spinbutton', { name: 'Message, coefficient 0' });
+    await user.clear(first);
+    await user.type(first, '6');
+    await user.click(screen.getByRole('link', { name: /05 / }));
+    await user.click(await screen.findByRole('button', { name: 'Why a list?' }));
+    await user.click(screen.getByRole('button', { name: /Load 2 errors/ }));
+    expect(screen.getByTestId('candidate-count')).toHaveTextContent(/^1$/);
+    await user.click(screen.getByRole('button', { name: /Load 3 errors/ }));
+    expect(screen.getByTestId('candidate-count')).toHaveTextContent(/^2$/);
+    await user.click(screen.getByRole('button', { name: 'Three-error example' }));
+    const firstLink = screen.getByRole('link', { name: /01 Tape to polynomial/ });
+    const target = new URL(firstLink.getAttribute('href')!, window.location.origin);
+    expect(JSON.parse(target.searchParams.get('s')!).coefficients).toEqual([6, 2, 1]);
+    await user.click(firstLink);
+    expect(await screen.findByRole('spinbutton', { name: 'Message, coefficient 0' })).toHaveValue(
+      6,
+    );
+    await user.click(screen.getByRole('link', { name: /02 Build a codeword/ }));
+    expect(
+      await screen.findByRole('button', { name: 'Codeword, position 1, value 6' }),
+    ).toBeInTheDocument();
+  });
+  it('keeps the latest message when browsing back and forward through lessons', async () => {
+    const user = userEvent.setup();
+    start();
+    await screen.findByRole('spinbutton', { name: 'Message, coefficient 0' });
+    await user.click(screen.getByRole('link', { name: /02 Build a codeword/ }));
+    await screen.findByRole('slider', { name: 'Evaluation points' });
+    await user.click(screen.getByRole('link', { name: /01 Tape to polynomial/ }));
+    const first = await screen.findByRole('spinbutton', { name: 'Message, coefficient 0' });
+    await user.clear(first);
+    await user.type(first, '6');
+    await act(async () => window.history.back());
+    expect(
+      await screen.findByRole('button', { name: 'Codeword, position 1, value 6' }),
+    ).toBeInTheDocument();
+    await act(async () => window.history.back());
+    expect(await screen.findByRole('spinbutton', { name: 'Message, coefficient 0' })).toHaveValue(
+      6,
+    );
+    await act(async () => window.history.forward());
+    expect(
+      await screen.findByRole('button', { name: 'Codeword, position 1, value 6' }),
+    ).toBeInTheDocument();
+  });
+  it('keeps the original field and message after reloading an FFT preset', async () => {
+    const user = userEvent.setup();
+    const { unmount } = start('tape-polynomial', defaultExperiment(5));
+    const first = await screen.findByRole('spinbutton', { name: 'Message, coefficient 0' });
+    await user.clear(first);
+    await user.type(first, '4');
+    await user.click(screen.getByRole('link', { name: /08 / }));
+    await user.click(await screen.findByRole('button', { name: /Load the F₁₇ FFT example/ }));
+    expect(screen.getByRole('combobox', { name: 'Load field preset' })).toHaveValue('17');
+    // Remount using the current URL and history entry, as a page reload would.
+    unmount();
+    render(
+      <ExperimentProvider>
+        <App />
+      </ExperimentProvider>,
+    );
+    await screen.findByRole('group', { name: 'From codes to proofs stages' });
+    await user.click(screen.getByRole('link', { name: /01 Tape to polynomial/ }));
+    expect(await screen.findByRole('spinbutton', { name: 'Message, coefficient 0' })).toHaveValue(
+      4,
+    );
+    expect(screen.getByRole('combobox', { name: 'Load field preset' })).toHaveValue('5');
+  });
+  it('allows an explicit reset to clear the saved message during a preset', async () => {
+    const user = userEvent.setup();
+    start();
+    const first = await screen.findByRole('spinbutton', { name: 'Message, coefficient 0' });
+    await user.clear(first);
+    await user.type(first, '6');
+    await user.click(screen.getByRole('link', { name: /05 / }));
+    await user.click(await screen.findByRole('button', { name: 'Three-error example' }));
+    await user.click(screen.getByRole('button', { name: 'Reset' }));
+    await user.click(screen.getByRole('link', { name: /01 Tape to polynomial/ }));
+    expect(await screen.findByRole('spinbutton', { name: 'Message, coefficient 0' })).toHaveValue(
+      3,
+    );
+  });
   it.each(['Delete', 'Backspace'])(
     'edits digits with %s without removing a coefficient',
     async (key) => {

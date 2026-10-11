@@ -13,6 +13,7 @@ export default function App() {
   const {
     lesson: lessonId,
     experiment: e,
+    navigationExperiment,
     notice,
     navigate,
     reset,
@@ -27,6 +28,7 @@ export default function App() {
   const Lesson = lesson.component;
   const binary = lessonId === 'hamming-ball';
   const proofLesson = lessonId === 'codes-to-proofs';
+  const introductoryLesson = lessonIndex < 2;
   const next = lessons[lessonIndex + 1];
   const previous = lessons[lessonIndex - 1];
   useEffect(() => {
@@ -67,7 +69,7 @@ export default function App() {
         <a
           className="brand"
           aria-label="Reed–Solomon Visual Lab, first experiment"
-          href={experimentUrl('tape-polynomial', e)}
+          href={experimentUrl('tape-polynomial', navigationExperiment)}
           onClick={(event) => follow(event, 'tape-polynomial')}
         >
           <div className="brand-symbol">
@@ -91,7 +93,7 @@ export default function App() {
                     className={`nav-item ${lessonId === item.id ? 'active' : ''}`}
                     aria-label={`${item.number} ${item.shortTitle}`}
                     aria-current={lessonId === item.id ? 'page' : undefined}
-                    href={experimentUrl(item.id, e)}
+                    href={experimentUrl(item.id, item.id === lessonId ? e : navigationExperiment)}
                     onClick={(event) => follow(event, item.id)}
                   >
                     <span className="nav-number">{item.number}</span>
@@ -176,18 +178,26 @@ export default function App() {
                 </label>
                 {!proofLesson && (
                   <>
-                    <span>
+                    <span className={introductoryLesson ? 'parameter-definition' : undefined}>
                       <MathText>{`k=${e.coefficients.length}`}</MathText>
+                      {introductoryLesson && (
+                        <span className="parameter-meaning">message length</span>
+                      )}
                     </span>
-                    <span>
+                    <span className={introductoryLesson ? 'parameter-definition' : undefined}>
                       <MathText>{`n=${e.n}`}</MathText>
+                      {introductoryLesson && (
+                        <span className="parameter-meaning">evaluation points</span>
+                      )}
                     </span>
-                    <span>
-                      <MathText>{`\\rho=\\frac{${e.coefficients.length}}{${e.n}}`}</MathText>
-                      <span className="parameter-percent">
-                        {((e.coefficients.length / e.n) * 100).toFixed(1)}%
+                    {lessonId !== 'tape-polynomial' && (
+                      <span>
+                        <MathText>{`\\rho=\\frac{${e.coefficients.length}}{${e.n}}`}</MathText>
+                        <span className="parameter-percent">
+                          {((e.coefficients.length / e.n) * 100).toFixed(1)}%
+                        </span>
                       </span>
-                    </span>
+                    )}
                   </>
                 )}
                 {lessonId === 'tape-polynomial' ? (
@@ -230,7 +240,7 @@ export default function App() {
             {previous && (
               <a
                 className="previous-link"
-                href={experimentUrl(previous.id, e)}
+                href={experimentUrl(previous.id, navigationExperiment)}
                 onClick={(event) => follow(event, previous.id)}
               >
                 <ArrowLeft size={16} />
@@ -251,7 +261,7 @@ export default function App() {
             {next ? (
               <a
                 className="next-link"
-                href={experimentUrl(next.id, e)}
+                href={experimentUrl(next.id, navigationExperiment)}
                 onClick={(event) => follow(event, next.id)}
               >
                 <span>

@@ -20,7 +20,15 @@ import { defaultExperiment } from '../state/model';
 import { BallScene } from '../visuals/BallScene';
 
 export default function DecodingRadius() {
-  const { experiment: e, sent, errors, setErrors, patch, loadDefault } = useExperiment();
+  const {
+    experiment: e,
+    sent,
+    errors,
+    setErrors,
+    patch,
+    loadDefault,
+    loadPreset,
+  } = useExperiment();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(4);
   const k = e.coefficients.length;
@@ -79,7 +87,7 @@ export default function DecodingRadius() {
         radius={radius}
         onExample={(count) => {
           const preset = defaultExperiment();
-          patch({
+          loadPreset({
             ...preset,
             received: corrupt(preset.received, count, preset.q, 1, true),
             radius: count,

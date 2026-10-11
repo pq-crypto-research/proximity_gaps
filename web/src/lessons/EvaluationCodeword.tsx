@@ -84,6 +84,7 @@ export default function EvaluationCodeword() {
             <select
               id="rate-select"
               aria-label="Code rate"
+              aria-describedby="rate-description"
               className="select-input"
               value={e.n}
               onChange={(event) => setExample(e.coefficients, Number(event.target.value))}
@@ -94,6 +95,9 @@ export default function EvaluationCodeword() {
                 </option>
               ))}
             </select>
+            <p id="rate-description" className="control-hint">
+              Rate is the ratio of useful data to the total number of symbols.
+            </p>
             <Slider
               label="Evaluation points"
               min={k}
