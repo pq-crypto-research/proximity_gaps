@@ -11,7 +11,7 @@ export type LessonDefinition = {
   question: string;
   noteSection: string;
   noteSource?: 'stark' | 'soundness';
-  parameterMode?: 'mca';
+  parameterMode?: 'mca' | 'linear-combination';
   component: LazyExoticComponent<ComponentType>;
 };
 
@@ -85,8 +85,21 @@ export const lessons: LessonDefinition[] = [
     component: lazy(() => import('./InterleavedRS')),
   },
   {
-    id: 'mutual-correlated-agreement',
+    id: 'random-linear-combination',
     number: '07',
+    title: 'Random linear combination',
+    shortTitle: 'Random Linear Combination',
+    group: 'Agreement & soundness',
+    description: 'Multiply one vector by alpha, then add. Can two words make a codeword?',
+    question: 'Can two non-codewords combine into a valid codeword?',
+    noteSection: 'Mutual correlated agreement',
+    noteSource: 'soundness',
+    parameterMode: 'linear-combination',
+    component: lazy(() => import('./RandomLinearCombination')),
+  },
+  {
+    id: 'mutual-correlated-agreement',
+    number: '08',
     title: 'Mutual correlated agreement',
     shortTitle: 'MCA',
     group: 'Agreement & soundness',
@@ -99,7 +112,7 @@ export const lessons: LessonDefinition[] = [
   },
   {
     id: 'codes-to-proofs',
-    number: '08',
+    number: '09',
     title: 'From codes to proofs',
     shortTitle: 'From codes to proofs',
     group: 'STARKs',

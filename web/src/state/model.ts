@@ -1,5 +1,6 @@
 import { encode, SUPPORTED_FIELDS } from '../core/math';
 import type { McaSettings } from '../core/agreement';
+import { RLC_DOMAIN, RLC_Q, type LinearCombinationSettings } from '../core/linearCombination';
 
 export const LESSON_IDS = [
   'tape-polynomial',
@@ -8,6 +9,7 @@ export const LESSON_IDS = [
   'hamming-ball',
   'decoding-radius',
   'interleaved-rs',
+  'random-linear-combination',
   'mutual-correlated-agreement',
   'codes-to-proofs',
 ] as const;
@@ -52,6 +54,7 @@ export type Experiment = {
     corrupt: boolean;
   };
   mca?: McaSettings;
+  linearCombination?: LinearCombinationSettings;
 };
 
 export function defaultExperiment(q = 17): Experiment {
@@ -84,6 +87,20 @@ export function validExperiment(value: unknown): value is Experiment {
   const s = value as Record<string, unknown>;
   if (!SUPPORTED_FIELDS.includes(s.q as 5 | 7 | 17)) return false;
   const q = s.q as number;
+  if (s.linearCombination !== undefined) {
+    if (!s.linearCombination || typeof s.linearCombination !== 'object') return false;
+    const settings = s.linearCombination as Record<string, unknown>;
+    if (
+      ![settings.f, settings.g].every(
+        (row) =>
+          Array.isArray(row) &&
+          row.length === RLC_DOMAIN.length &&
+          row.every((a) => integer(a, 0, RLC_Q - 1)),
+      ) ||
+      !integer(settings.alpha, 0, RLC_Q - 1)
+    )
+      return false;
+  }
   if (s.interleaving !== undefined) {
     if (!s.interleaving || typeof s.interleaving !== 'object') return false;
     const interleaving = s.interleaving as Record<string, unknown>;

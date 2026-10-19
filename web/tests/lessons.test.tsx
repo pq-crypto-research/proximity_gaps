@@ -90,7 +90,7 @@ describe('interactive lessons', () => {
     const first = await screen.findByRole('spinbutton', { name: 'Message, coefficient 0' });
     await user.clear(first);
     await user.type(first, '4');
-    await user.click(screen.getByRole('link', { name: /08 / }));
+    await user.click(screen.getByRole('link', { name: /From codes to proofs/ }));
     await user.click(await screen.findByRole('button', { name: /Load the F₁₇ FFT example/ }));
     expect(screen.getByRole('combobox', { name: 'Load field preset' })).toHaveValue('17');
     // Remount using the current URL and history entry, as a page reload would.

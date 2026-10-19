@@ -30,16 +30,17 @@ Use `pnpm run format` to format the frontend's TypeScript, styles, configuration
 
 ## Implemented experiments
 
-| Step | Experiment           | Interactions                                                                                                                                        |
-| ---- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 01   | Tape to polynomial   | Edit integers modulo the selected field, add/remove slots with buttons, and follow each coefficient into its polynomial term.                       |
-| 02   | Build a codeword     | Change the rate or evaluation count; inspect modular evaluation arithmetic and the resulting output tape.                                           |
-| 03   | Measure errors       | Edit aligned reference/received rows; each unequal column contributes one to Δ. Inspect δ and a compact distance diagram.                           |
-| 04   | Grow a Hamming ball  | Explore all 32 binary words of length five, change the center and radius, and optionally highlight the repetition code.                             |
-| 05   | List decoding        | Read the guided explainer, compare exact one/two-candidate examples, grow the radius, and inspect every nearby polynomial.                          |
-| 06   | Interleaved RS       | Edit two to four messages; follow each polynomial into an evaluation row. Inspect column tuples and compare shared versus separate error positions. |
-| 07   | MCA                  | Grow codeword-centered balls along an affine family, count all challenges, and inspect exact same-support explanations or failures.                 |
-| 08   | From codes to proofs | Edit trace evaluations, recover the polynomial with IFFT/Lagrange interpolation, extend it with FFT, and inspect a local FRI fold.                  |
+| Step | Experiment                | Interactions                                                                                                                                        |
+| ---- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 01   | Tape to polynomial        | Edit integers modulo the selected field, add/remove slots with buttons, and follow each coefficient into its polynomial term.                       |
+| 02   | Build a codeword          | Change the rate or evaluation count; inspect modular evaluation arithmetic and the resulting output tape.                                           |
+| 03   | Measure errors            | Edit aligned reference/received rows; each unequal column contributes one to Δ. Inspect δ and a compact distance diagram.                           |
+| 04   | Grow a Hamming ball       | Explore all 32 binary words of length five, change the center and radius, and optionally highlight the repetition code.                             |
+| 05   | List decoding             | Read the guided explainer, compare exact one/two-candidate examples, grow the radius, and inspect every nearby polynomial.                          |
+| 06   | Interleaved RS            | Edit two to four messages; follow each polynomial into an evaluation row. Inspect column tuples and compare shared versus separate error positions. |
+| 07   | Random Linear Combination | Edit two vector tapes and α, sample α, switch input presets, and see whether h = f + αg is a codeword.                                              |
+| 08   | MCA                       | Grow codeword-centered balls along an affine family, count all challenges, and inspect exact same-support explanations or failures.                 |
+| 09   | From codes to proofs      | Edit trace evaluations, recover the polynomial with IFFT/Lagrange interpolation, extend it with FFT, and inspect a local FRI fold.                  |
 
 **Tape editing:** Delete and Backspace edit digits normally; pressing either key again when the cell is empty removes that slot and focuses a neighboring cell. **Remove last coefficient** is also available. At least one coefficient slot remains. Integer input is reduced modulo the selected field (for example, 20 becomes 3 in F₁₇); the typed digits stay visible until Enter or blur. Negative integers wrap too, and decimal integer strings are reduced exactly before conversion to JavaScript numbers. Empty or invalid drafts left without deleting the cell revert to the last valid coefficient on Enter or blur.
 
@@ -58,6 +59,8 @@ The four views distinguish the prover's interpolation and extension work from th
 **Copy link** preserves the displayed experiment, including the field, message, received word, radius, and deterministic seed. Opening a shared link restores those settings. Browser back/forward navigation between lessons keeps the latest experiment instead of reverting to older message values. A temporary preset's original experiment is saved in browser history state; it is not included in the preset's shared link. There is no browser-storage dependency.
 
 **Interleaved RS** treats a column as one symbol in F_q^ℓ. The first row shares the earlier polynomial; other rows have independent editable messages with the same k slots. “Same column” versus “Different columns” keeps one changed entry per row but changes the column distance. It compares the reference and received matrices, not distance to the nearest interleaved codeword.
+
+**Random Linear Combination** uses its own fixed RS code over F₁₇, with k = 2 and ordered domain `[1, 2, 4, 8, 16, 15, 13, 9]`. The starting vectors are `f = [1, 2, 4, 8, 1, 15, 13, 9]` and `g = [0, 0, 0, 0, 5, 0, 0, 0]`. Only α = 3 combines them into a codeword, the evaluation of p(X) = X. Edit any input cell modulo 17, choose or sample α, switch either input to a codeword or non-codeword preset, and reset the example. Valid codewords appear green and other words gray. Selecting a result cell shows its modular arithmetic. The live relative distance δ(h,C) checks all 289 codewords and shows the minimum mismatch count divided by 8, its percentage, and a nearest polynomial; ties are reported explicitly. The probability counts all 17 challenges for the current inputs, and Copy link preserves both vectors and α.
 
 **MCA** has its own exact toy model: RS over F₅, k=2, n=5, and 25 codewords. For each of the five challenges γ, it forms u₀+γu₁. The green ball is centered on a selectable valid codeword, while the counts inspect all codewords. The parameter strip shows all challenge values; it does not claim to be a Euclidean embedding. A circle’s area is never used as probability.
 
@@ -132,7 +135,7 @@ The notes remain ordinary Markdown in [notes/](../notes/). The notes dialog rend
 
 ## Planned features
 
-These are future experiments, separate from the eight implemented lessons. The new subject-based notes have a detailed [visual sequence and implementation plan](../plans/research-notes-visuals.md).
+These are future experiments, separate from the nine implemented lessons. The new subject-based notes have a detailed [visual sequence and implementation plan](../plans/research-notes-visuals.md).
 
 Next from those notes:
 

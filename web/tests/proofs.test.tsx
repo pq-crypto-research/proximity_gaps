@@ -20,7 +20,7 @@ describe('from codes to proofs', () => {
     const { container } = start();
     const traceValue = await screen.findByRole('spinbutton', { name: 'Trace values, position 2' });
     expect(traceValue).toHaveValue(10);
-    expect(screen.getByRole('link', { name: '08 From codes to proofs' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: '09 From codes to proofs' })).toHaveAttribute(
       'aria-current',
       'page',
     );

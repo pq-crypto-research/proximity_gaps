@@ -134,7 +134,21 @@ export default function App() {
             <span className="chapter-rule" />
           </div>
           <div className="parameter-strip">
-            {lesson.parameterMode === 'mca' ? (
+            {lesson.parameterMode === 'linear-combination' ? (
+              <>
+                <span>
+                  <MathText>{'\\mathbb F_{17}'}</MathText>
+                  <span className="parameter-percent">arithmetic modulo 17</span>
+                </span>
+                <span>
+                  <MathText>{'k=2,\\ n=8'}</MathText>
+                </span>
+                <span>
+                  <MathText>{'\\deg p < 2'}</MathText>
+                  <span className="parameter-percent">linear polynomials</span>
+                </span>
+              </>
+            ) : lesson.parameterMode === 'mca' ? (
               <>
                 <span>
                   <MathText>{'\\mathbb F_5^5'}</MathText>
