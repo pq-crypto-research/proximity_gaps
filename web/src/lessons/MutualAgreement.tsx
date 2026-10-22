@@ -1,366 +1,381 @@
-import { useMemo } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
+import { RotateCcw, Shuffle } from 'lucide-react';
 import { MathText } from '../components/Math';
-import { Tape } from '../components/Tape';
-import { Definition, Slider, Stat } from '../components/Controls';
-import { analyzeMca, MCA_PRESETS, type McaSettings } from '../core/agreement';
+import { NumberCell, Tape } from '../components/Tape';
+import { Definition, Slider, Toggle } from '../components/Controls';
+import {
+  analyzeMca,
+  MCA_DOMAIN,
+  MCA_MIN_AGREEMENT,
+  MCA_N,
+  MCA_PRESETS,
+  MCA_Q,
+  type McaSettings,
+} from '../core/agreement';
+import { linearCodewordPolynomial } from '../core/linearCombination';
 import { polynomialTex } from '../core/math';
 import { useExperiment } from '../state/ExperimentContext';
-import { BallScene } from '../visuals/BallScene';
-import './ResearchLessons.css';
-
-type Challenge = ReturnType<typeof analyzeMca>['challenges'][number];
-function preferredCodeword(challenge: Challenge) {
-  return (
-    challenge.candidates.find((candidate) => candidate.bad)?.index ??
-    challenge.distances.indexOf(challenge.nearest)
-  );
-}
-
-const initial = MCA_PRESETS.radius;
-const initialSettings = {
-  ...initial,
-  codeword: preferredCodeword(
-    analyzeMca(initial.u0, initial.u1, initial.radius).challenges[initial.gamma],
-  ),
-};
+import './MutualAgreement.css';
 
 export default function MutualAgreement() {
-  const { experiment: e, patch } = useExperiment();
-  const settings = e.mca ?? initialSettings;
+  const { experiment, patch } = useExperiment();
+  const settings = experiment.mca ?? MCA_PRESETS.article;
+  const [onlySupport, setOnlySupport] = useState(false);
+  const analysis = useMemo(() => analyzeMca(settings.f, settings.g), [settings.f, settings.g]);
+  const selected = analysis.challenges[settings.alpha];
+  const { support, nearest: c } = selected;
+  const [u0, u1] = analysis.nearestInputs;
+  const indices = MCA_DOMAIN.flatMap((_, i) => (!onlySupport || support.includes(i) ? [i] : []));
   const update = (change: Partial<McaSettings>) => patch({ mca: { ...settings, ...change } });
-  const analysis = useMemo(
-    () => analyzeMca(settings.u0, settings.u1, settings.radius),
-    [settings.u0, settings.u1, settings.radius],
+  const restrict = (name: string) => `${name}${onlySupport ? '|_S' : ''}`;
+  const broken = support.filter(
+    (i) => settings.f[i] !== u0.word[i] || settings.g[i] !== u1.word[i],
   );
-  const selected = analysis.challenges[settings.gamma];
-  const center = analysis.book[settings.codeword];
-  const witness = selected.candidates.find((candidate) => candidate.index === settings.codeword);
-  const support = witness?.support ?? [];
-  const chooseGamma = (gamma: number) =>
-    update({ gamma, codeword: preferredCodeword(analysis.challenges[gamma]) });
-  const load = (preset: keyof typeof MCA_PRESETS) => {
-    const next = MCA_PRESETS[preset];
-    const result = analyzeMca(next.u0, next.u1, next.radius);
-    patch({ mca: { ...next, codeword: preferredCodeword(result.challenges[next.gamma]) } });
-  };
-  const changeRadius = (radius: number) => update({ radius });
-  // Multiple challenge values may produce the same word (zero direction).
-  // Draw that word once, but retain all five outcomes in probability counts.
-  const distinct = [
-    ...new Map(
-      analysis.challenges.map((challenge) => [challenge.word.join(','), challenge]),
-    ).values(),
-  ];
+  const verdict = selected.bad
+    ? 'MCA error'
+    : selected.qualifies
+      ? 'MCA agreement'
+      : 'No qualifying agreement';
+
+  function row(
+    name: string,
+    label: string,
+    values: readonly number[],
+    comparison: readonly number[],
+    meta: ReactNode,
+    editable?: 'f' | 'g',
+  ) {
+    return (
+      <tr aria-label={label}>
+        <th scope="row">
+          <MathText>{`${restrict(name)}=`}</MathText>
+        </th>
+        {indices.map((i) => {
+          const inside = support.includes(i);
+          const differs = values[i] !== comparison[i];
+          return (
+            <td
+              key={i}
+              data-coordinate={MCA_DOMAIN[i]}
+              data-in-support={inside}
+              className={`${inside ? (differs ? 'mca-in-mismatch' : 'mca-in-match') : 'mca-out'} ${differs ? 'mca-different' : ''}`}
+              title={`x = ${MCA_DOMAIN[i]} · ${inside ? 'in S' : 'outside S'} · ${differs ? 'different values' : 'matching values'}`}
+            >
+              <div className="tape-cell mca-cell">
+                {editable ? (
+                  <NumberCell
+                    value={values[i]}
+                    q={MCA_Q}
+                    label={`MCA ${editable}, position ${i + 1}, x = ${MCA_DOMAIN[i]}`}
+                    wrapValues
+                    onChange={(value) =>
+                      update({ [editable]: values.map((entry, j) => (j === i ? value : entry)) })
+                    }
+                  />
+                ) : (
+                  <span>{values[i]}</span>
+                )}
+              </div>
+            </td>
+          );
+        })}
+        <td className="mca-row-meta">{meta}</td>
+      </tr>
+    );
+  }
+
+  function inputMeta(values: number[]) {
+    return (
+      <span>{linearCodewordPolynomial(values) ? 'Valid codeword' : 'Word · not a codeword'}</span>
+    );
+  }
+
+  function nearestMeta(name: 'f' | 'g', codeword: typeof u0, subscript: number) {
+    const agrees = support.every((i) => settings[name][i] === codeword.word[i]);
+    return (
+      <>
+        <span>
+          {codeword.count > 1 ? 'A nearest codeword' : 'Nearest codeword'}:{' '}
+          <MathText>{`p_${subscript}(X)=${polynomialTex(codeword.coefficients)}`}</MathText>
+        </span>
+        <small className={agrees ? 'mca-text-match' : selected.qualifies ? 'mca-text-error' : ''}>
+          <MathText>{`${name}|_S ${agrees ? '=' : '\\ne'} u_${subscript}|_S`}</MathText>
+          {codeword.count > 1 && ` · ${codeword.count} equally near`}
+        </small>
+      </>
+    );
+  }
+
   return (
-    <div className="research-lesson">
-      <div className="research-heading">
-        <h2>When a combination looks polynomial.</h2>
-        <p>
-          Mix two received rows using one field challenge. MCA asks whether every large agreement of
-          the result can be explained in both original rows, on the same positions.
-        </p>
-      </div>
-      <section className="research-panel" aria-label="MCA experiment">
-        <div className="research-toolbar mca-presets" role="group" aria-label="MCA examples">
-          <span>Examples</span>
-          <button className="subtle-button" onClick={() => load('radius')}>
-            Growing radius
-          </button>
-          <button className="subtle-button" onClick={() => load('cancellation')}>
-            Errors cancel
-          </button>
-          <button className="subtle-button" onClick={() => load('code')}>
-            Line inside the code
-          </button>
-        </div>
-        <div className="mca-line-section">
-          <div className="mca-line-heading">
-            <MathText>{'w_\\gamma=u_0+\\gamma u_1'}</MathText>
-            <span>Choose a point on the affine line · arithmetic modulo 5</span>
+    <div className="mca-lesson">
+      <header className="mca-heading">
+        <h2>Mutual correlated agreement</h2>
+        <p>Find where h and c agree. Do f and g agree with codewords on those same positions?</p>
+      </header>
+      <section className="experiment-panel mca-workbench" aria-label="MCA experiment">
+        <div className="panel-topline">
+          <MathText>{'h_\\alpha=f+\\alpha g\\pmod{17}'}</MathText>
+          <div className="mca-actions">
+            <button className="text-button" onClick={() => patch({ mca: MCA_PRESETS.code })}>
+              Both codewords
+            </button>
+            <button
+              className="text-button"
+              onClick={() => {
+                patch({ mca: MCA_PRESETS.article });
+                setOnlySupport(false);
+              }}
+            >
+              <RotateCcw size={13} aria-hidden="true" /> Reset example
+            </button>
           </div>
-          <div className="challenge-line" role="group" aria-label="All five field challenges">
-            {analysis.challenges.map((challenge) => (
-              <button
-                key={challenge.gamma}
-                className={`challenge-point ${challenge.bad ? 'challenge-bad' : challenge.near ? 'challenge-near' : ''}`}
-                aria-label={`Challenge ${challenge.gamma}: ${challenge.bad ? 'MCA failure' : challenge.near ? 'near code, all supports explained' : 'outside all balls'}`}
-                aria-pressed={settings.gamma === challenge.gamma}
-                onClick={() => chooseGamma(challenge.gamma)}
-              >
-                <span className="challenge-dot" />
-                <MathText>{`\\gamma=${challenge.gamma}`}</MathText>
-                <span className="challenge-status">
-                  {challenge.bad ? 'MCA failure' : challenge.near ? 'Explained' : 'Outside'}
-                </span>
-                <span className="challenge-distance">distance {challenge.nearest}</span>
-              </button>
-            ))}
-          </div>
-          <p className="research-caption">
-            Five equally likely challenges, placed in parameter order. This strip is not a Euclidean
-            projection of the word space.
-          </p>
         </div>
-        <div className="mca-scene">
-          <div className="mca-ball">
-            <label className="mca-center-label">
-              Focus on one codeword’s ball
-              <select
-                aria-label="Ball center polynomial"
-                value={settings.codeword}
-                onChange={(event) => update({ codeword: Number(event.target.value) })}
-              >
-                {analysis.book.map((c, i) => (
-                  <option key={c.id} value={i}>
-                    p(X) = {c.coefficients[0]} + {c.coefficients[1]}X · distance{' '}
-                    {selected.distances[i]} from selected word
-                  </option>
+        <div className="mca-board-toolbar">
+          <div className="mca-legend">
+            <span>
+              <i className="mca-swatch-match" />
+              Agrees on S
+            </span>
+            <span>
+              <i className="mca-swatch-error" />
+              Mismatch inside S
+            </span>
+            <span>
+              <i className="mca-swatch-out" />
+              Outside S
+            </span>
+          </div>
+          <Toggle label="Only show S" checked={onlySupport} onChange={setOnlySupport} />
+        </div>
+        <div
+          className="mca-tape-scroll"
+          tabIndex={0}
+          role="region"
+          aria-label="Aligned vectors and nearest codewords"
+        >
+          <table className="mca-tape-table">
+            <colgroup>
+              <col className="mca-label-column" />
+              {indices.map((i) => (
+                <col key={i} />
+              ))}
+              <col className="mca-meta-column" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th scope="col">{onlySupport ? 'On S' : 'On D'}</th>
+                {indices.map((i) => (
+                  <th scope="col" key={i} className={support.includes(i) ? 'mca-domain-in' : ''}>
+                    <MathText>{`x=${MCA_DOMAIN[i]}`}</MathText>
+                  </th>
                 ))}
-              </select>
-            </label>
-            <BallScene
-              maxDistance={5}
-              radius={settings.radius}
-              centerLabel="c"
-              label="Hamming ball centered on the selected valid codeword"
-              points={distinct.map((challenge) => {
-                const group = analysis.challenges.filter(
-                  (other) => other.word.join(',') === challenge.word.join(','),
-                );
-                const active = group.some((other) => other.gamma === settings.gamma);
-                return {
-                  id: challenge.word.join(','),
-                  label: group.map((other) => `γ=${other.gamma}`).join(', '),
-                  distance: challenge.distances[settings.codeword],
-                  emphasis: active,
-                  selected: active,
-                  description: `Challenge ${group.map((other) => other.gamma).join(', ')}, word ${challenge.word.join(', ')}, distance ${challenge.distances[settings.codeword]} from this codeword`,
-                  onSelect: () => update({ gamma: active ? settings.gamma : challenge.gamma }),
-                };
-              })}
-              showLabels
-            />
-            <p className="research-caption">
-              One of 25 codeword-centered balls. Rings give exact distances to this center; angles
-              and distances between other points carry no meaning.
-            </p>
-          </div>
-          <div className="mca-controls">
-            <Slider label="Ball radius" value={settings.radius} max={5} onChange={changeRadius} />
-            <div className="mca-radius-summary">
-              <MathText>{`\\delta=\\frac{${settings.radius}}{5}`}</MathText>
-              <span>
-                Agreement needs at least <strong>{5 - settings.radius} of 5</strong> positions.
-              </span>
+                <th scope="col">Compare on the same set S</th>
+              </tr>
+            </thead>
+            <tbody className="mca-pair">
+              {row('f', 'Vector f', settings.f, u0.word, inputMeta(settings.f), 'f')}
+              {row('u_0', 'Nearest codeword u0', u0.word, settings.f, nearestMeta('f', u0, 0))}
+            </tbody>
+            <tbody className="mca-pair">
+              {row('g', 'Vector g', settings.g, u1.word, inputMeta(settings.g), 'g')}
+              {row('u_1', 'Nearest codeword u1', u1.word, settings.g, nearestMeta('g', u1, 1))}
+            </tbody>
+            <tbody>
+              <tr>
+                <td colSpan={indices.length + 2} className="mca-alpha-cell">
+                  <div className="mca-alpha-control">
+                    <div className="mca-alpha-value">
+                      <MathText>{'\\alpha='}</MathText>
+                      <Tape
+                        values={[settings.alpha]}
+                        label="MCA alpha"
+                        editable
+                        wrapValues
+                        hideIndices
+                        onChange={(_, alpha) => update({ alpha })}
+                      />
+                    </div>
+                    <Slider
+                      label="Alpha"
+                      value={settings.alpha}
+                      max={MCA_Q - 1}
+                      onChange={(alpha) => update({ alpha })}
+                    />
+                    <button
+                      className="mca-random"
+                      aria-label="Sample random alpha"
+                      onClick={() => update({ alpha: Math.floor(Math.random() * MCA_Q) })}
+                    >
+                      <Shuffle size={13} aria-hidden="true" />
+                      Random α
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+            <tbody className="mca-pair mca-output-pair">
+              {row(
+                'h',
+                'Combination h',
+                selected.word,
+                c.word,
+                <>
+                  <span>
+                    <MathText>{`h=f+${settings.alpha}g`}</MathText>
+                  </span>
+                  <small>
+                    <MathText>{`\\delta(h,C)=\\frac{${c.distance}}{${MCA_N}}`}</MathText>
+                  </small>
+                </>,
+              )}
+              {row(
+                'c',
+                'Nearest codeword c',
+                c.word,
+                selected.word,
+                <>
+                  <span>
+                    {c.count > 1 ? 'A nearest codeword' : 'Nearest codeword'}:{' '}
+                    <MathText>{`p(X)=${polynomialTex(c.coefficients)}`}</MathText>
+                  </span>
+                  <small className="mca-text-match">
+                    <MathText>{'h|_S=c|_S'}</MathText>
+                    {c.count > 1 && ` · ${c.count} equally near`}
+                  </small>
+                </>,
+              )}
+            </tbody>
+            <tfoot>
+              <tr>
+                <th scope="row">
+                  <MathText>S</MathText>
+                </th>
+                {indices.map((i) => (
+                  <td
+                    key={i}
+                    className={support.includes(i) ? 'mca-text-match' : ''}
+                    aria-label={`x = ${MCA_DOMAIN[i]} ${support.includes(i) ? 'in S' : 'outside S'}`}
+                  >
+                    {support.includes(i) ? '✓' : '—'}
+                  </td>
+                ))}
+                <td className="mca-row-meta">
+                  {support.length} of 8 points · need at least {MCA_MIN_AGREEMENT}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <div className="mca-support-summary">
+          <div className="mca-domain-sets">
+            <MathText>{`D=\\{${MCA_DOMAIN.join(',')}\\}`}</MathText>
+            <div>
+              <MathText>{`S=\\{${support.map((i) => MCA_DOMAIN[i]).join(',')}\\}`}</MathText>
+              <MathText>{'S\\subseteq D'}</MathText>
             </div>
-            <div className="mca-probabilities" aria-live="polite">
-              <Stat
-                label="Inside at least one ball"
-                value={<span data-testid="mca-near-count">{analysis.nearCount}/5</span>}
-                detail="Count each challenge once"
-              />
-              <Stat
-                label="MCA failures"
-                value={<span data-testid="mca-bad-count">{analysis.badCount}/5</span>}
-                detail="Some qualifying support fails to explain an original row"
-              />
-            </div>
-            <p className="research-caption">
-              Exact fractions for these two input rows. A theorem must bound the failure fraction
-              for every choice of input rows.
-            </p>
           </div>
         </div>
-      </section>
-      <section className="research-panel mca-witness" aria-label="Same-support witness">
-        <div className="research-toolbar">
-          <h3>Inspect γ = {settings.gamma}</h3>
-          <span className={`witness-status ${selected.bad ? 'is-bad' : ''}`}>
-            {selected.bad
-              ? 'At least one support fails'
-              : selected.near
-                ? 'All qualifying supports explained'
-                : 'No qualifying agreement'}
-          </span>
-        </div>
-        <div className="mca-witness-content">
+        <div
+          className={`mca-verdict ${selected.bad ? 'mca-verdict-error' : selected.qualifies ? 'mca-verdict-agreement' : ''}`}
+          role="status"
+          aria-label="MCA result"
+          aria-atomic="true"
+        >
+          <strong>{verdict}</strong>
           <p>
-            {witness ? (
+            {selected.bad ? (
               <>
-                The selected codeword{' '}
-                <MathText>{`c=\\operatorname{ev}(${polynomialTex(center.coefficients)})`}</MathText>{' '}
-                agrees with the combination on <strong>{support.length} positions</strong>. Can each
-                original row be polynomial on this same set?
+                h and c agree on S, but the input pairs disagree at{' '}
+                {broken.length === 1 ? 'x' : 'points'} ={' '}
+                {broken.map((i) => MCA_DOMAIN[i]).join(', ')} inside S. No codewords can make both
+                input pairs agree on all of S.
+              </>
+            ) : selected.qualifies ? (
+              <>
+                <MathText>{'f|_S=u_0|_S'}</MathText> and <MathText>{'g|_S=u_1|_S'}</MathText>. Both
+                inputs agree with codewords everywhere in S. Differences outside S are allowed.
               </>
             ) : (
               <>
-                The selected codeword is {selected.distances[settings.codeword]} positions away,
-                outside radius {settings.radius}.{' '}
-                {selected.near
-                  ? 'Choose a nearby codeword above to inspect its agreement set.'
-                  : 'Increase the radius to admit an agreement set.'}
+                <MathText>{'|S|\\ge(1-\\delta)n=(1-\\tfrac14)\\cdot8=6'}</MathText>
+                <br />h matches its nearest codeword on only {support.length} points; at least{' '}
+                {MCA_MIN_AGREEMENT} are required. S is too small, so this α is not an MCA failure.
               </>
             )}
           </p>
-          <div
-            className="research-scroll"
-            tabIndex={0}
-            role="region"
-            aria-label="Original rows and combined agreement positions"
-          >
-            <table className="support-table">
-              <thead>
-                <tr>
-                  <th scope="col">Row</th>
-                  {selected.word.map((_, x) => (
-                    <th scope="col" key={x}>
-                      <MathText>{`x=${x}`}</MathText>
-                    </th>
-                  ))}
-                  <th scope="col">Polynomial on this set?</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[settings.u0, settings.u1, selected.word, center.word].map((row, j) => (
-                  <tr key={j}>
-                    <th scope="row">
-                      <MathText>{['u_0', 'u_1', 'w_\\gamma', 'c'][j]}</MathText>
-                      {j === 2 && <span className="support-row-hint">combined</span>}
-                    </th>
-                    {row.map((value, x) => (
-                      <td key={x} className={support.includes(x) ? 'support-in' : 'support-out'}>
-                        {value}
-                      </td>
-                    ))}
-                    <td className="support-explanation">
-                      {!witness ? (
-                        '—'
-                      ) : j < 2 ? (
-                        witness.explanations[j].length ? (
-                          <MathText>{`p_${j}(X)=${polynomialTex(witness.explanations[j][0].coefficients)}`}</MathText>
-                        ) : (
-                          <span className="is-bad">None of the 25 codewords</span>
-                        )
-                      ) : (
-                        <span className="support-yes">✓ agrees on T</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <th scope="row">Support T</th>
-                  {selected.word.map((_, x) => (
-                    <td key={x} className={support.includes(x) ? 'support-in' : 'support-out'}>
-                      {support.includes(x) ? '✓' : '·'}
-                    </td>
-                  ))}
-                  <td>
-                    {witness ? `${support.length} ≥ ${5 - settings.radius}` : 'No selected support'}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
+        </div>
+        <div className="mca-challenges">
+          <div className="mca-challenge-heading">
+            <span>Try every α</span>
+            <span>
+              <strong data-testid="mca-bad-count">{analysis.badCount}/17</strong> MCA failure
+              probability for this pair
+            </span>
           </div>
-          {witness && (
-            <p className={`witness-conclusion ${witness.bad ? 'is-bad' : ''}`}>
-              {witness.bad
-                ? 'This is an MCA failure: the combination has a polynomial explanation here, but at least one original row has none on these same positions.'
-                : selected.bad
-                  ? 'This support is explained, but another qualifying support fails. Inspect a failing candidate below.'
-                  : 'Both original rows have polynomial explanations on this set. Proximity here is consistent with the original rows.'}
-            </p>
-          )}
-          {selected.candidates.length > 1 && (
-            <div
-              className="candidate-supports"
-              role="group"
-              aria-label="All qualifying candidate supports"
-            >
-              {selected.candidates.map((candidate) => (
-                <button
-                  key={candidate.index}
-                  className={`subtle-button ${candidate.bad ? 'is-bad' : ''}`}
-                  aria-label={`Inspect candidate ${candidate.index}, ${candidate.support.length} agreement positions, ${candidate.bad ? 'failing' : 'explained'} support`}
-                  aria-pressed={settings.codeword === candidate.index}
-                  onClick={() => update({ codeword: candidate.index })}
-                >
-                  <MathText>{polynomialTex(analysis.book[candidate.index].coefficients)}</MathText>
-                  <span>
-                    {candidate.support.length} positions · {candidate.bad ? 'failure' : 'explained'}
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
+          <div className="mca-challenge-buttons" role="group" aria-label="All 17 alpha values">
+            {analysis.challenges.map((challenge) => (
+              <button
+                key={challenge.alpha}
+                className={
+                  challenge.bad
+                    ? 'mca-alpha-error'
+                    : challenge.qualifies
+                      ? 'mca-alpha-agreement'
+                      : 'mca-alpha-outside'
+                }
+                aria-pressed={settings.alpha === challenge.alpha}
+                aria-label={`Alpha ${challenge.alpha}: ${challenge.bad ? 'MCA error' : challenge.qualifies ? 'MCA agreement' : 'no qualifying agreement'}`}
+                onClick={() => update({ alpha: challenge.alpha })}
+              >
+                {challenge.alpha}
+              </button>
+            ))}
+          </div>
+          <p>
+            Uniform α from 0 to 16. Red choices fail; green choices agree; yellow choices have no
+            qualifying set.
+          </p>
         </div>
       </section>
-      <Definition title="Edit the two original rows">
+      <Definition title="Why this is an MCA error">
         <p>
-          These are received words, so they need not be valid RS codewords. Changing them changes
-          the affine line.
-        </p>
-        <div className="mca-edit-rows">
-          {[settings.u0, settings.u1].map((row, j) => (
-            <div key={j}>
-              <MathText>{`u_${j}`}</MathText>
-              <Tape
-                values={row}
-                q={5}
-                editable
-                compact
-                label={`MCA input row ${j}`}
-                onChange={(index, value) => {
-                  const next = {
-                    ...settings,
-                    [j === 0 ? 'u0' : 'u1']: row.map((a, x) => (x === index ? value : a)),
-                  };
-                  const result = analyzeMca(next.u0, next.u1, next.radius);
-                  patch({
-                    mca: { ...next, codeword: preferredCodeword(result.challenges[next.gamma]) },
-                  });
-                }}
-              />
-            </div>
-          ))}
-        </div>
-      </Definition>
-      <Definition title="What are the square, balls, line, and probability?">
-        <p>
-          The ambient space is <MathText>{'\\mathbb F_5^5'}</MathText>: 3,125 possible words, of
-          which 25 are RS codewords of degree less than 2. A square can represent this space
-          schematically. A ball <MathText>{'B(c,E)'}</MathText> contains every word differing from
-          its center in at most E positions.
+          The code evaluates polynomials of degree less than 2 on{' '}
+          <MathText>{'D=\\{1,2,4,8,16,15,13,9\\}'}</MathText> in{' '}
+          <MathText>{'\\mathbb F_{17}'}</MathText>. We fix δ = 1/4, so a qualifying agreement set
+          contains at least six points.
         </p>
         <p>
-          The affine line is <MathText>{'\\{u_0+\\gamma u_1:\\gamma\\in\\mathbb F_5\\}'}</MathText>.
-          Sample γ uniformly. Ball incidence is the fraction of challenges whose words are close to
-          at least one codeword, not a fraction of the square’s drawn area. If the direction is
-          zero, all challenges select the same word.
+          For the starting vectors, c, u₀, and u₁ are all the zero codeword. At α = 10, the
+          combination becomes zero at x = 13, but neither input is zero there. At α = 3, the same
+          thing happens at x = 9. These are the only two failing challenges.
         </p>
         <p>
-          MCA controls a smaller event: there exists a sufficiently large set T on which the
-          combined word has a codeword explanation, but at least one input has none on T. A line
-          inside the code has proximity 1 and failure 0.
+          The test asks whether <em>any</em> codewords fit f and g throughout S. It does not require
+          their agreement sets to equal S: extra agreement outside S is fine. We check all 289
+          codewords for possible explanations.
         </p>
         <p>
-          There is no universal radius where a drawn line “starts intersecting.” The research
-          question is how large δ can be while keeping the worst-case failure probability below a
-          target ε, for the specified code and challenge distribution.
+          The minimum codeword distance is 7, so two distinct codewords cannot both be within two
+          errors of h. At this threshold, a qualifying c is therefore the unique nearest codeword.
+          Likewise, if a codeword explains an input on S, it is that input’s unique nearest
+          codeword. If h is further than two errors from the code, there is no qualifying set. Any
+          tied nearest codeword can be displayed in that case.
         </p>
         <p>
-          We check all 25 codewords and all five challenges. Checking each candidate’s full
-          agreement set is sufficient: if an input has no explanation on a subset, it cannot have
-          one on a larger set containing it. This is exact enumeration of this example, including
-          radius endpoints, not a claim about a theorem’s admissible radius range.
+          Checking the full agreement set S also checks every sufficiently large subset: a codeword
+          matching all of S matches each subset too. The probability shown is exact for the current
+          vectors, not a worst-case bound over all vectors.
         </p>
         <p>
-          Definition:{' '}
-          <a href="https://eprint.iacr.org/2024/1586" target="_blank" rel="noreferrer">
-            WHIR, §4.2, Definition 4.9
-          </a>{' '}
-          (PDF retrieved September 13, 2026).
+          Example:{' '}
+          <a
+            href="https://hackmd.io/@-urCr-W9R8mS-UktGXSzbQ/S1_dP1Z3Mg"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Mutual Correlated Agreement (MCA) for Dummies
+          </a>
+          .
         </p>
       </Definition>
     </div>

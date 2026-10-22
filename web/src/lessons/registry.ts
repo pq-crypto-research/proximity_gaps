@@ -103,7 +103,7 @@ export const lessons: LessonDefinition[] = [
     title: 'Mutual correlated agreement',
     shortTitle: 'MCA',
     group: 'Agreement & soundness',
-    description: 'Follow an affine line of words and inspect the same agreement positions.',
+    description: 'Compare f, g, and their combination with codewords on the same agreement set.',
     question: 'Can combining rows create a misleading polynomial agreement?',
     noteSection: 'Mutual correlated agreement',
     noteSource: 'soundness',

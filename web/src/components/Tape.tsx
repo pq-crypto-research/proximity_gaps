@@ -3,7 +3,7 @@ import { Plus, X } from 'lucide-react';
 import { MathText } from './Math';
 import { parseFieldInteger } from '../core/math';
 
-function NumberCell({
+export function NumberCell({
   value,
   q,
   label,

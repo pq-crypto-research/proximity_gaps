@@ -1,0 +1,335 @@
+@layer components {
+  .mca-lesson {
+    display: grid;
+    gap: 16px;
+    min-width: 0;
+  }
+  .mca-heading h2 {
+    margin-bottom: 6px;
+    font-size: clamp(26px, 2.6vw, 36px);
+  }
+  .mca-heading p {
+    color: var(--muted);
+  }
+  .mca-workbench .panel-topline {
+    padding: 10px 22px;
+    min-height: 0;
+  }
+  .mca-actions {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  .mca-board-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 12px 22px 6px;
+  }
+  .mca-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    color: var(--muted);
+    font-size: 10px;
+  }
+  .mca-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .mca-legend i {
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+    border: 1px solid;
+  }
+  .mca-swatch-match {
+    background: #eaf4ec;
+    border-color: #b8d4bf !important;
+  }
+  .mca-swatch-error {
+    background: #fff0ee;
+    border-color: #dca298 !important;
+  }
+  .mca-swatch-out {
+    background: #f2f3f3;
+    border-color: #dce0e0 !important;
+  }
+  .mca-board-toolbar .toggle {
+    font-size: 11px;
+  }
+  .mca-tape-scroll {
+    overflow-x: auto;
+    padding: 0 18px;
+  }
+  .mca-tape-table {
+    width: 100%;
+    min-width: 660px;
+    table-layout: fixed;
+    border-spacing: 0;
+  }
+  .mca-label-column {
+    width: 52px;
+  }
+  .mca-meta-column {
+    width: 230px;
+  }
+  .mca-tape-table th {
+    font-weight: 400;
+  }
+  .mca-tape-table thead th {
+    color: var(--muted);
+    padding: 5px 3px;
+    font-size: 10px;
+    text-align: center;
+  }
+  .mca-tape-table thead th:last-child {
+    text-align: left;
+    padding-left: 14px;
+  }
+  .mca-tape-table thead .mca-domain-in {
+    color: var(--green-dark);
+  }
+  .mca-tape-table tbody th {
+    font-size: 17px;
+    text-align: left;
+    padding-right: 4px;
+  }
+  .mca-pair td {
+    padding: 3px;
+  }
+  .mca-pair tr:last-child td,
+  .mca-pair tr:last-child th {
+    padding-bottom: 12px;
+  }
+  .mca-output-pair tr:last-child td,
+  .mca-output-pair tr:last-child th {
+    padding-bottom: 3px;
+  }
+  .mca-tape-table .mca-cell {
+    height: 32px;
+    font-size: 15px;
+    border-radius: 4px;
+  }
+  .mca-in-match .mca-cell {
+    color: var(--green-dark);
+    background: #eaf4ec;
+    border-color: #bdd6c3;
+  }
+  .mca-in-mismatch .mca-cell {
+    color: #a2352c;
+    background: #fff0ee;
+    border-color: #dca298;
+  }
+  .mca-out .mca-cell {
+    color: #8b9291;
+    background: #f2f3f3;
+    border-color: #e2e5e4;
+  }
+  .mca-different .mca-cell {
+    box-shadow: inset 0 -2px #bf6155;
+  }
+  .mca-out.mca-different .mca-cell {
+    box-shadow: inset 0 -2px #c9a4a0;
+  }
+  .mca-tape-table td.mca-row-meta {
+    padding-left: 14px;
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .mca-row-meta > span,
+  .mca-row-meta > small {
+    display: block;
+  }
+  .mca-row-meta > small {
+    font-size: 10px;
+  }
+  .mca-text-match {
+    color: var(--green-dark);
+  }
+  .mca-text-error {
+    color: #a2352c;
+  }
+  .mca-tape-table .mca-alpha-cell {
+    padding: 0 0 10px;
+  }
+  .mca-alpha-control {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    padding: 8px 12px;
+    background: var(--paper);
+    border-block: 1px solid var(--line);
+  }
+  .mca-alpha-value {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .mca-alpha-value .tape,
+  .mca-alpha-value .tape-scroll {
+    padding: 3px;
+  }
+  .mca-alpha-value .tape-column {
+    width: 36px;
+  }
+  .mca-alpha-value .tape-cell {
+    height: 34px;
+    font-size: 17px;
+    background: white;
+  }
+  .mca-alpha-control .slider-control {
+    flex: 1;
+    margin: 0;
+  }
+  .mca-alpha-control .control-heading {
+    margin-bottom: 4px;
+  }
+  .mca-alpha-control .slider-endpoints {
+    margin-top: 4px;
+  }
+  .mca-random {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 7px 10px;
+    font-size: 11px;
+  }
+  .mca-tape-table tfoot th,
+  .mca-tape-table tfoot td {
+    padding: 3px;
+    font-size: 12px;
+    text-align: center;
+  }
+  .mca-tape-table tfoot th,
+  .mca-tape-table tfoot td:last-child {
+    text-align: left;
+  }
+  .mca-support-summary {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    padding: 8px 22px 12px;
+    font-size: 11px;
+  }
+  .mca-domain-sets {
+    display: grid;
+    gap: 4px;
+  }
+  .mca-domain-sets > div {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  .mca-verdict {
+    padding: 12px 22px;
+    background: #fff8e6;
+    color: #80601d;
+    border-top: 1px solid #ead8a7;
+  }
+  .mca-verdict > strong {
+    font-size: 13px;
+  }
+  .mca-verdict > p {
+    font-size: 12px;
+    margin-top: 3px;
+  }
+  .mca-verdict-error {
+    background: #fff4f2;
+    color: #993c32;
+    border-color: #f0d4cf;
+  }
+  .mca-verdict-agreement {
+    background: var(--green-soft);
+    color: var(--green-dark);
+    border-color: var(--line);
+  }
+  .mca-challenges {
+    padding: 12px 22px;
+    border-top: 1px solid var(--line);
+  }
+  .mca-challenge-heading {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 11px;
+    margin-bottom: 8px;
+  }
+  .mca-challenge-heading strong {
+    font-family: var(--mono);
+    font-size: 14px;
+  }
+  .mca-challenge-buttons {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  .mca-challenge-buttons button {
+    width: 32px;
+    height: 29px;
+    border: 1px solid #dce0e0;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .mca-alpha-agreement {
+    background: var(--green-soft);
+    color: var(--green-dark);
+  }
+  .mca-challenge-buttons .mca-alpha-error {
+    background: #fff0ee;
+    border-color: #e8c5bf;
+    color: #a2352c;
+  }
+  .mca-challenge-buttons .mca-alpha-outside {
+    background: #fff8e6;
+    border-color: #ead8a7;
+    color: #80601d;
+  }
+  .mca-challenge-buttons button[aria-pressed='true'] {
+    outline: 2px solid currentColor;
+    outline-offset: 1px;
+  }
+  .mca-challenges > p {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+}
+@layer responsive {
+  @media (max-width: 760px) {
+    .mca-workbench .panel-topline,
+    .mca-board-toolbar,
+    .mca-verdict,
+    .mca-challenges {
+      padding-inline: 14px;
+    }
+    .mca-tape-scroll {
+      padding-inline: 10px;
+    }
+    .mca-support-summary {
+      padding-inline: 14px;
+    }
+    .mca-actions {
+      gap: 10px;
+    }
+    .mca-actions .text-button {
+      font-size: 10px;
+    }
+    .mca-meta-column {
+      width: 210px;
+    }
+  }
+}

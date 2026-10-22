@@ -30,9 +30,10 @@ export function linearCodewordPolynomial(word: readonly number[]): number[] | nu
 }
 
 // This lesson's domain differs from the consecutive points used by the shared codebook.
-const linearCodewords = Array.from({ length: RLC_Q ** 2 }, (_, index) => {
+export const linearCodewords = Array.from({ length: RLC_Q ** 2 }, (_, index) => {
   const coefficients = [index % RLC_Q, Math.floor(index / RLC_Q)];
   return {
+    id: coefficients.join(','),
     coefficients,
     word: RLC_DOMAIN.map((x) => evaluate(coefficients, x, RLC_Q)),
   };

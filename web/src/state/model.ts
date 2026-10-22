@@ -1,5 +1,5 @@
 import { encode, SUPPORTED_FIELDS } from '../core/math';
-import type { McaSettings } from '../core/agreement';
+import { MCA_PRESETS, type McaSettings } from '../core/agreement';
 import { RLC_DOMAIN, RLC_Q, type LinearCombinationSettings } from '../core/linearCombination';
 
 export const LESSON_IDS = [
@@ -131,12 +131,13 @@ export function validExperiment(value: unknown): value is Experiment {
     if (!s.mca || typeof s.mca !== 'object') return false;
     const mca = s.mca as Record<string, unknown>;
     if (
-      ![mca.u0, mca.u1].every(
-        (row) => Array.isArray(row) && row.length === 5 && row.every((a) => integer(a, 0, 4)),
+      ![mca.f, mca.g].every(
+        (row) =>
+          Array.isArray(row) &&
+          row.length === RLC_DOMAIN.length &&
+          row.every((a) => integer(a, 0, RLC_Q - 1)),
       ) ||
-      !integer(mca.radius, 0, 5) ||
-      !integer(mca.gamma, 0, 4) ||
-      !integer(mca.codeword, 0, 24)
+      !integer(mca.alpha, 0, RLC_Q - 1)
     )
       return false;
   }
@@ -197,6 +198,24 @@ export function readLocation(
     try {
       if (raw.length > 10_000) throw new Error('Oversized state');
       const parsed: unknown = JSON.parse(raw);
+      // Old links used a different F₅ toy model. Preserve the other lessons' settings,
+      // but explicitly load the new article example instead of reinterpreting those vectors.
+      if (parsed && typeof parsed === 'object' && 'mca' in parsed) {
+        const old = parsed.mca as Record<string, unknown> | null;
+        if (
+          old &&
+          [old.u0, old.u1].every(
+            (row) => Array.isArray(row) && row.length === 5 && row.every((a) => integer(a, 0, 4)),
+          ) &&
+          integer(old.radius, 0, 5) &&
+          integer(old.gamma, 0, 4) &&
+          integer(old.codeword, 0, 24)
+        ) {
+          parsed.mca = MCA_PRESETS.article;
+          if (lesson === 'mutual-correlated-agreement')
+            notice = 'MCA now uses the article’s F₁₇ example. Loaded its starting vectors.';
+        }
+      }
       if (!validExperiment(parsed) || (parsed as Experiment & { v?: number }).v !== 1)
         throw new Error('Unsupported state');
       return { lesson, experiment: parsed, notice };

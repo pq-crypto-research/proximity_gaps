@@ -151,16 +151,18 @@ export default function App() {
             ) : lesson.parameterMode === 'mca' ? (
               <>
                 <span>
-                  <MathText>{'\\mathbb F_5^5'}</MathText>
-                  <span className="parameter-percent">exact toy model</span>
+                  <MathText>{'\\mathbb F_{17}'}</MathText>
+                  <span className="parameter-percent">arithmetic modulo 17</span>
                 </span>
                 <span>
-                  <MathText>{'k=2,\\ n=5'}</MathText>
+                  <MathText>{'k=2,\\ n=8'}</MathText>
                 </span>
-                <span>25 codewords</span>
                 <span>
-                  <MathText>{'\\gamma \\in \\mathbb F_5'}</MathText>
-                  <span className="parameter-percent">5 equally likely choices</span>
+                  <MathText>{'\\deg p<2'}</MathText>
+                </span>
+                <span>
+                  <MathText>{'\\delta=1/4'}</MathText>
+                  <span className="parameter-percent">agreement on at least 6 of 8 points</span>
                 </span>
               </>
             ) : binary ? (

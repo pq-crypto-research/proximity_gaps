@@ -1,4 +1,13 @@
-import { codebook, distance, encode, mod, type Codeword } from './math';
+import { encode, type Codeword } from './math';
+import {
+  DEFAULT_LINEAR_COMBINATION,
+  linearCodewords,
+  linearCombination,
+  nearestLinearCodeword,
+  RLC_DOMAIN,
+  RLC_Q,
+  type LinearCombinationSettings,
+} from './linearCombination';
 
 export function interleave(messages: readonly (readonly number[])[], n: number, q: number) {
   if (!messages.length || messages.some((row) => row.length !== messages[0].length))
@@ -29,22 +38,23 @@ export function columnAgreement(
   return { rowSupports, commonSupport, errors: reference[0].length - commonSupport.length };
 }
 
-export const MCA_Q = 5;
-export const MCA_N = 5;
+export const MCA_Q = RLC_Q;
+export const MCA_DOMAIN = RLC_DOMAIN;
+export const MCA_N = MCA_DOMAIN.length;
 export const MCA_K = 2;
+export const MCA_RADIUS = 2;
+export const MCA_MIN_AGREEMENT = MCA_N - MCA_RADIUS;
 
-export type McaSettings = {
-  u0: number[];
-  u1: number[];
-  radius: number;
-  gamma: number;
-  codeword: number;
-};
+export type McaSettings = LinearCombinationSettings;
 
-export const MCA_PRESETS: Record<'radius' | 'cancellation' | 'code', McaSettings> = {
-  radius: { u0: [3, 4, 2, 2, 1], u1: [1, 0, 2, 4, 3], radius: 1, gamma: 1, codeword: 0 },
-  cancellation: { u0: [0, 0, 0, 1, 2], u1: [0, 0, 0, 4, 3], radius: 0, gamma: 1, codeword: 0 },
-  code: { u0: [1, 2, 3, 4, 0], u1: [2, 2, 2, 2, 2], radius: 0, gamma: 0, codeword: 6 },
+export const MCA_PRESETS: Record<'article' | 'cancellation' | 'code', McaSettings> = {
+  article: {
+    f: [0, 0, 0, 0, 0, 0, 7, 14],
+    g: [0, 0, 0, 0, 0, 0, 1, 1],
+    alpha: 2,
+  },
+  cancellation: DEFAULT_LINEAR_COMBINATION,
+  code: { f: [...MCA_DOMAIN], g: MCA_DOMAIN.map(() => 1), alpha: 2 },
 };
 
 export function agreementSupport(a: readonly number[], b: readonly number[]) {
@@ -60,66 +70,46 @@ export function explanations(
   return book.filter((c) => support.every((x) => c.word[x] === word[x]));
 }
 
-export type McaCandidate = {
-  index: number;
-  distance: number;
-  support: number[];
-  explanations: [Codeword[], Codeword[]];
-  bad: boolean;
-};
-
-/** Exact two-row instance of WHIR, ePrint 2024/1586, Definition 4.9
- * (PDF retrieved 2026-09-13). This is the event, not a uniform error bound.
- * It suffices to check each candidate's full agreement set A: a bad subset
- * T ⊆ A implies a bad A, since an explanation on A would also explain T.
- * Conversely a bad A is itself a qualifying witness. No supports are sampled.
+/** Exact MCA on the article's RS[F17, D, 2], with delta = 1/4.
+ * Minimum distance is 7, so a radius-2 ball contains at most one codeword.
+ * Its full agreement set S is sufficient: an explanation on S also explains
+ * every subset of S. If no codeword is within radius 2, there is no qualifying S.
+ * We search all codewords for input explanations, not just the displayed nearest pair.
  */
-export function analyzeMca(u0: readonly number[], u1: readonly number[], radius: number) {
+export function analyzeMca(f: readonly number[], g: readonly number[]) {
   if (
-    [u0, u1].some(
+    [f, g].some(
       (word) =>
         word.length !== MCA_N || word.some((a) => !Number.isInteger(a) || a < 0 || a >= MCA_Q),
-    ) ||
-    !Number.isInteger(radius) ||
-    radius < 0 ||
-    radius > MCA_N
+    )
   )
-    throw new RangeError('This exhaustive MCA model uses two words in F₅⁵ and radius 0…5.');
-  const book = codebook(MCA_Q, MCA_K, MCA_N)!;
-  const challenges = Array.from({ length: MCA_Q }, (_, gamma) => {
-    const word = u0.map((a, x) => mod(a + gamma * u1[x], MCA_Q));
-    const distances = book.map((c) => distance(c.word, word));
-    const candidates: McaCandidate[] = book.flatMap((c, index) => {
-      if (distances[index] > radius) return [];
-      const support = agreementSupport(c.word, word);
-      const inputExplanations: [Codeword[], Codeword[]] = [
-        explanations(book, u0, support),
-        explanations(book, u1, support),
-      ];
-      return [
-        {
-          index,
-          distance: distances[index],
-          support,
-          explanations: inputExplanations,
-          bad: inputExplanations.some((items) => items.length === 0),
-        },
-      ];
-    });
+    throw new RangeError('Use two eight-entry vectors over F₁₇.');
+  const book = linearCodewords;
+  const nearestInputs = [nearestLinearCodeword(f), nearestLinearCodeword(g)] as const;
+  const challenges = Array.from({ length: MCA_Q }, (_, alpha) => {
+    const word = linearCombination(f, g, alpha);
+    const nearest = nearestLinearCodeword(word);
+    const support = agreementSupport(word, nearest.word);
+    const qualifies = nearest.distance <= MCA_RADIUS;
+    const inputExplanations = [
+      explanations(book, f, support),
+      explanations(book, g, support),
+    ] as const;
     return {
-      gamma,
+      alpha,
       word,
-      distances,
-      nearest: Math.min(...distances),
-      candidates,
-      near: candidates.length > 0,
-      bad: candidates.some((candidate) => candidate.bad),
+      nearest,
+      support,
+      qualifies,
+      explanations: inputExplanations,
+      bad: qualifies && inputExplanations.some((items) => items.length === 0),
     };
   });
   return {
     book,
+    nearestInputs,
     challenges,
-    nearCount: challenges.filter((challenge) => challenge.near).length,
+    nearCount: challenges.filter((challenge) => challenge.qualifies).length,
     badCount: challenges.filter((challenge) => challenge.bad).length,
   };
 }
