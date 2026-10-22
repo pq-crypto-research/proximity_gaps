@@ -25,14 +25,18 @@ describe('interactive lessons', () => {
     await user.type(first, '6');
     await user.click(screen.getByRole('button', { name: 'Add coefficient' }));
     expect(screen.getByRole('spinbutton', { name: 'Message, coefficient 3' })).toHaveValue(0);
-    const codewordLink = screen.queryByRole('link', { name: /02 Build a codeword/ });
+    const codewordLink = screen.queryByRole('link', { name: /02 Message to codeword/ });
     expect(codewordLink, 'The second lesson must have a named navigation link').not.toBeNull();
     await user.click(codewordLink!);
     await screen.findByRole('slider', { name: 'Evaluation points' });
-    expect(screen.getByRole('combobox', { name: /Code rate/ })).toHaveValue('8');
-    expect(
-      within(screen.getByRole('group', { name: 'Codeword' })).getAllByText('6').length,
-    ).toBeGreaterThan(0);
+    expect(screen.getByRole('slider', { name: 'Evaluation points' })).toHaveAttribute(
+      'aria-valuenow',
+      '11',
+    );
+    await user.click(screen.getByRole('link', { name: /03 Coefficients to polynomial/ }));
+    expect(await screen.findByRole('spinbutton', { name: 'Message, coefficient 0' })).toHaveValue(
+      6,
+    );
     expect(container.querySelector('.katex-error')).toBeNull();
     expect(container.querySelector('math')).not.toBeNull();
   });
@@ -42,38 +46,38 @@ describe('interactive lessons', () => {
     const first = await screen.findByRole('spinbutton', { name: 'Message, coefficient 0' });
     await user.clear(first);
     await user.type(first, '6');
-    await user.click(screen.getByRole('link', { name: /05 / }));
+    await user.click(screen.getByRole('link', { name: /07 / }));
     await user.click(await screen.findByRole('button', { name: 'Why a list?' }));
     await user.click(screen.getByRole('button', { name: /Load 2 errors/ }));
     expect(screen.getByTestId('candidate-count')).toHaveTextContent(/^1$/);
     await user.click(screen.getByRole('button', { name: /Load 3 errors/ }));
     expect(screen.getByTestId('candidate-count')).toHaveTextContent(/^2$/);
     await user.click(screen.getByRole('button', { name: 'Three-error example' }));
-    const firstLink = screen.getByRole('link', { name: /01 Tape to polynomial/ });
+    const firstLink = screen.getByRole('link', { name: /03 Coefficients to polynomial/ });
     const target = new URL(firstLink.getAttribute('href')!, window.location.origin);
     expect(JSON.parse(target.searchParams.get('s')!).coefficients).toEqual([6, 2, 1]);
     await user.click(firstLink);
     expect(await screen.findByRole('spinbutton', { name: 'Message, coefficient 0' })).toHaveValue(
       6,
     );
-    await user.click(screen.getByRole('link', { name: /02 Build a codeword/ }));
+    await user.click(screen.getByRole('link', { name: /02 Message to codeword/ }));
     expect(
-      await screen.findByRole('button', { name: 'Codeword, position 1, value 6' }),
+      await screen.findByRole('button', { name: 'Codeword, position 1, value 72' }),
     ).toBeInTheDocument();
   });
   it('keeps the latest message when browsing back and forward through lessons', async () => {
     const user = userEvent.setup();
     start();
     await screen.findByRole('spinbutton', { name: 'Message, coefficient 0' });
-    await user.click(screen.getByRole('link', { name: /02 Build a codeword/ }));
+    await user.click(screen.getByRole('link', { name: /02 Message to codeword/ }));
     await screen.findByRole('slider', { name: 'Evaluation points' });
-    await user.click(screen.getByRole('link', { name: /01 Tape to polynomial/ }));
+    await user.click(screen.getByRole('link', { name: /03 Coefficients to polynomial/ }));
     const first = await screen.findByRole('spinbutton', { name: 'Message, coefficient 0' });
     await user.clear(first);
     await user.type(first, '6');
     await act(async () => window.history.back());
     expect(
-      await screen.findByRole('button', { name: 'Codeword, position 1, value 6' }),
+      await screen.findByRole('button', { name: 'Codeword, position 1, value 72' }),
     ).toBeInTheDocument();
     await act(async () => window.history.back());
     expect(await screen.findByRole('spinbutton', { name: 'Message, coefficient 0' })).toHaveValue(
@@ -81,7 +85,7 @@ describe('interactive lessons', () => {
     );
     await act(async () => window.history.forward());
     expect(
-      await screen.findByRole('button', { name: 'Codeword, position 1, value 6' }),
+      await screen.findByRole('button', { name: 'Codeword, position 1, value 72' }),
     ).toBeInTheDocument();
   });
   it('keeps the original field and message after reloading an FFT preset', async () => {
@@ -101,7 +105,7 @@ describe('interactive lessons', () => {
       </ExperimentProvider>,
     );
     await screen.findByRole('group', { name: 'From codes to proofs stages' });
-    await user.click(screen.getByRole('link', { name: /01 Tape to polynomial/ }));
+    await user.click(screen.getByRole('link', { name: /03 Coefficients to polynomial/ }));
     expect(await screen.findByRole('spinbutton', { name: 'Message, coefficient 0' })).toHaveValue(
       4,
     );
@@ -113,10 +117,10 @@ describe('interactive lessons', () => {
     const first = await screen.findByRole('spinbutton', { name: 'Message, coefficient 0' });
     await user.clear(first);
     await user.type(first, '6');
-    await user.click(screen.getByRole('link', { name: /05 / }));
+    await user.click(screen.getByRole('link', { name: /07 / }));
     await user.click(await screen.findByRole('button', { name: 'Three-error example' }));
     await user.click(screen.getByRole('button', { name: 'Reset' }));
-    await user.click(screen.getByRole('link', { name: /01 Tape to polynomial/ }));
+    await user.click(screen.getByRole('link', { name: /03 Coefficients to polynomial/ }));
     expect(await screen.findByRole('spinbutton', { name: 'Message, coefficient 0' })).toHaveValue(
       3,
     );
@@ -239,19 +243,6 @@ describe('interactive lessons', () => {
     expect(first).toHaveValue(16);
     expect(screen.getByLabelText('Polynomial: 16 + 2X + X^{2}')).toBeInTheDocument();
   });
-  it('changes the exact rate and output length together', async () => {
-    start('evaluation-codeword');
-    const slider = await screen.findByRole('slider', { name: 'Evaluation points' });
-    fireEvent.change(slider, { target: { value: '12' } });
-    expect(screen.getByRole('combobox', { name: /Code rate/ })).toHaveValue('12');
-    expect(
-      within(screen.getByRole('group', { name: 'Codeword' })).getAllByText(/^\d+$/).length,
-    ).toBe(24);
-    fireEvent.change(slider, { target: { value: '3' } });
-    expect(
-      screen.getByText('0 redundant symbols · the polynomial stays fixed.'),
-    ).toBeInTheDocument();
-  });
   it('allows two different wrong symbols without changing Hamming distance', async () => {
     const user = userEvent.setup();
     start('hamming-distance');
@@ -312,7 +303,8 @@ describe('interactive lessons', () => {
     await user.click(screen.getByRole('button', { name: 'In a STARK' }));
     expect(screen.getByText('Soundness analysis')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Load 3 errors/ })).toBeNull();
-    await user.click(screen.getByText('What the list guarantees'));
+    await user.click(screen.getByRole('link', { name: 'Further reading' }));
+    await user.click(await screen.findByText('What the list guarantees'));
     expect(container.querySelector('.katex-error')).toBeNull();
   });
   it('reveals genuine ambiguity and supports an independent empty search radius', async () => {
@@ -403,16 +395,6 @@ describe('interactive lessons', () => {
       }),
     ).toHaveAttribute('aria-pressed', 'true');
   });
-  it('selects an output symbol and highlights the corresponding evaluation', async () => {
-    const user = userEvent.setup();
-    start('evaluation-codeword');
-    await user.click(await screen.findByRole('button', { name: 'Codeword, position 5, value 10' }));
-    expect(screen.getByRole('button', { name: 'Inspect evaluation at 4' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
-    expect(screen.getByText('SUBSTITUTE X = 4 · MODULO 17')).toBeInTheDocument();
-  });
   it('restores a shared route on history navigation', async () => {
     start();
     await screen.findByRole('spinbutton', { name: 'Message, coefficient 0' });
@@ -428,7 +410,10 @@ describe('interactive lessons', () => {
     const user = userEvent.setup();
     const { container } = start();
     await screen.findByRole('spinbutton', { name: 'Message, coefficient 0' });
-    await user.click(screen.getByRole('button', { name: /Explore the definition/ }));
+    await user.click(screen.getByRole('link', { name: 'Further reading' }));
+    await user.click(
+      await screen.findByRole('button', { name: 'Reed–Solomon codes and list decoding' }),
+    );
     expect(await screen.findByRole('dialog', { name: 'Read the notes' })).toHaveAttribute('open');
     expect(screen.getByRole('link', { name: /Download full note/ })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Close notes' }));

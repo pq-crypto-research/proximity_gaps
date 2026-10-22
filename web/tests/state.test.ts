@@ -64,7 +64,7 @@ describe('reproducible experiment links', () => {
   });
   it('recovers unknown routes without losing valid experiment data', () => {
     const result = readLocation('/visuals/missing', '');
-    expect(result.lesson).toBe('tape-polynomial');
+    expect(result.lesson).toBe('message-interpolation');
     expect(result.notice).toContain('not found');
   });
 });

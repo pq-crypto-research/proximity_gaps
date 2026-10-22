@@ -22,20 +22,14 @@ const noteSources = {
 };
 
 export default function NotesDialog({
-  section,
   source,
   onClose,
 }: {
-  section: string;
   source?: 'stark' | 'soundness';
   onClose: () => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const note = noteSources[source ?? 'intro'];
-  const start = note.text.indexOf(`## ${section}`);
-  const end = note.text.indexOf('\n## ', start + 1);
-  const excerpt =
-    source || start < 0 ? note.text : note.text.slice(start, end < 0 ? undefined : end);
   const filename = note.filename;
   useEffect(() => {
     const node = dialog.current;
@@ -68,7 +62,7 @@ export default function NotesDialog({
       </div>
       <div className="notes-content">
         <Markdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeKatex]}>
-          {excerpt}
+          {note.text}
         </Markdown>
       </div>
       <div className="notes-dialog-footer">

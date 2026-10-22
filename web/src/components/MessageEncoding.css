@@ -1,0 +1,307 @@
+@layer components {
+  .main-content:has(.message-lesson) {
+    padding-top: 22px;
+  }
+  .main-content:has(.message-lesson) .parameter-strip {
+    min-height: 40px;
+    margin: 12px 0 16px;
+  }
+  .message-heading h2 {
+    margin: 0 0 6px;
+    font: 400 28px/1.2 var(--serif);
+    letter-spacing: -0.6px;
+  }
+  .message-heading p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .message-lesson {
+    display: grid;
+    gap: 14px;
+  }
+  .message-encoding-lesson .message-stage {
+    padding-block: 10px;
+  }
+  .message-encoding-lesson .message-polynomial-stage {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+  }
+  .message-encoding-lesson .message-polynomial-stage .message-stage-heading {
+    margin: 0;
+  }
+  .message-encoding-lesson .message-degree {
+    display: none;
+  }
+  .message-encoding-lesson .message-polynomial {
+    padding-block: 3px;
+    font-size: 16px;
+  }
+  .message-stage {
+    padding: 12px 20px;
+  }
+  .message-stage-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .message-stage-heading h3 {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0;
+    font: 400 18px var(--serif);
+  }
+  .message-step {
+    display: inline-grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    color: var(--muted);
+    font: 11px var(--mono);
+  }
+  .message-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .message-actions .text-button,
+  .message-actions .toggle {
+    font-size: 11px;
+  }
+  .message-input-tape {
+    display: grid;
+    grid-template-columns: 40px repeat(5, minmax(0, 1fr));
+    gap: 9px;
+    align-items: center;
+  }
+  .message-vector-label {
+    font-size: 18px;
+    flex: 0 0 40px;
+  }
+  .message-symbol {
+    display: grid;
+    gap: 5px;
+    text-align: center;
+    min-width: 0;
+  }
+  .message-symbol label {
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .message-symbol input {
+    width: 100%;
+    min-width: 0;
+    height: 42px;
+    border: 1px solid #cad5c4;
+    border-radius: 5px;
+    background: #f8faf5;
+    text-align: center;
+    color: var(--ink);
+    font: 18px var(--mono);
+  }
+  .message-symbol input:focus {
+    outline: 2px solid #829a67;
+    outline-offset: 2px;
+  }
+  .message-symbol input[aria-invalid='true'] {
+    border-color: #be6b42;
+  }
+  .message-ascii {
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.5;
+    min-height: 15px;
+  }
+  .message-ascii b {
+    font: 500 16px var(--mono);
+    color: var(--ink);
+  }
+  .message-help {
+    margin: 8px 0 0 49px;
+    font-size: 10px;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+  .message-transition {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 20px;
+    background: var(--paper);
+    border-block: 1px solid var(--line);
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .message-degree {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .message-polynomial {
+    overflow-x: auto;
+    padding: 4px 0 8px;
+    font-size: 19px;
+  }
+  .message-matches {
+    display: flex;
+    gap: 10px 25px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+    color: var(--green-dark);
+    font-size: 12px;
+  }
+  .message-matches > span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .message-length {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+  }
+  .message-output-scroll {
+    overflow-x: auto;
+    padding: 3px 3px 8px;
+  }
+  .message-output-tape {
+    display: flex;
+    align-items: end;
+    gap: 6px;
+    width: max-content;
+    min-width: min(100%, 340px);
+  }
+  .message-output-tape > .message-vector-label {
+    align-self: center;
+    padding-top: 20px;
+  }
+  .message-output-symbol {
+    flex: 0 0 50px;
+    width: 50px;
+    text-align: center;
+  }
+  .message-point {
+    display: block;
+    font-size: 10px;
+    color: var(--muted);
+    padding-bottom: 6px;
+  }
+  .message-output-symbol button {
+    width: 100%;
+    height: 36px;
+    border-radius: 4px;
+    border: 1px solid;
+    font: 14px var(--mono);
+  }
+  .message-output-symbol.is-kept button {
+    background: #eaf4ec;
+    border-color: #b8d6be;
+    color: #25643b;
+  }
+  .message-output-symbol button:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+  .message-resize-handle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 26px;
+    height: 43px;
+    border-radius: 4px;
+    background: #edf1e8;
+    color: #61784b;
+    cursor: ew-resize;
+    touch-action: none;
+    user-select: none;
+  }
+  .message-resize-handle:focus-visible {
+    outline: 2px solid #829a67;
+    outline-offset: 2px;
+  }
+  .message-resize-handle span {
+    font-size: 13px;
+    line-height: 13px;
+  }
+  .message-output-meta {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 10px;
+    margin: 2px 0 0;
+  }
+  .message-output-meta > .math {
+    font-size: 11px;
+  }
+  .message-next {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px 22px;
+    border-top: 1px solid var(--line);
+    background: var(--paper);
+    font-size: 12px;
+  }
+  .message-next p {
+    margin: 0;
+    color: var(--muted);
+    max-width: 500px;
+  }
+  @media (max-width: 650px) {
+    .message-heading h2 {
+      font-size: 27px;
+    }
+    .message-stage {
+      padding: 14px;
+    }
+    .message-stage-heading {
+      flex-wrap: wrap;
+    }
+    .message-input-tape {
+      grid-template-columns: 32px repeat(5, minmax(0, 1fr));
+      gap: 5px;
+    }
+    .message-symbol input {
+      font-size: 15px;
+      height: 38px;
+    }
+    .message-vector-label {
+      font-size: 15px;
+      flex-basis: 32px;
+    }
+    .message-ascii {
+      font-size: 8px;
+    }
+    .message-help {
+      margin-left: 0;
+    }
+    .message-polynomial {
+      font-size: 16px;
+    }
+    .message-transition,
+    .message-next {
+      padding-inline: 14px;
+    }
+    .message-matches {
+      gap: 8px 14px;
+      font-size: 11px;
+    }
+    .message-lesson .message-actions {
+      gap: 10px;
+    }
+  }
+}

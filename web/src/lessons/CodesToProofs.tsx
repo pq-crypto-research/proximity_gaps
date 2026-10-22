@@ -452,39 +452,6 @@ export default function CodesToProofs() {
                   />
                 </div>
               </Definition>
-              <Definition title="What the full FRI protocol adds">
-                <p>
-                  The prover commits to each table with a Merkle root. Challenges determine folds;
-                  queries are chosen after the layer commitments. FRI checks authenticated openings
-                  across several rounds and the degree of a small final polynomial.
-                </p>
-                <MathText block>{'p(X)=p_{\\rm even}(X^2)+X p_{\\rm odd}(X^2)'}</MathText>
-                <MathText block>{'g(Y)=p_{\\rm even}(Y)+\\alpha p_{\\rm odd}(Y)'}</MathText>
-                <p>
-                  Here you choose the challenge and pair to inspect the arithmetic. Merkle
-                  authentication, Fiat–Shamir, and the remaining rounds are omitted. A full STARK
-                  also checks the computation constraints and adds masking for zero knowledge.
-                </p>
-                <p>
-                  See the{' '}
-                  <a
-                    href="https://eccc.weizmann.ac.il/report/2017/134/"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    FRI paper
-                  </a>{' '}
-                  and this{' '}
-                  <a
-                    href="https://aszepieniec.github.io/stark-anatomy/fri.html"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    worked folding construction
-                  </a>
-                  .
-                </p>
-              </Definition>
             </>
           )}
         </div>

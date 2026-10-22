@@ -4,7 +4,7 @@ import { degree, polynomialTex, termTex } from '../core/math';
 import { useExperiment } from '../state/ExperimentContext';
 import { MathText } from '../components/Math';
 import { Tape } from '../components/Tape';
-import { Definition, Toggle } from '../components/Controls';
+import { Toggle } from '../components/Controls';
 
 export default function TapePolynomial() {
   const { experiment: e, setExample, patch } = useExperiment();
@@ -18,10 +18,19 @@ export default function TapePolynomial() {
     );
   return (
     <>
+      <header className="coefficient-heading">
+        <h2>Coefficients to polynomial</h2>
+        <p>An alternative encoding: place each vector entry in front of a power of X.</p>
+        <p className="coefficient-context">
+          In a typical STARK, trace entries are polynomial <strong>evaluations</strong>, and
+          interpolation finds the coefficients. This page shows direct coefficient encoding, another
+          valid way to encode a message with Reed–Solomon codes.
+        </p>
+      </header>
       <section className="experiment-panel coefficient-experiment">
         <div className="panel-topline">
           <div className="object-label">
-            <span>Message</span>
+            <span>Coefficient vector</span>
             <span className="muted">{k} coefficients</span>
           </div>
           <span className="micro-label">Each position supplies a power of X</span>
@@ -119,35 +128,6 @@ export default function TapePolynomial() {
           />
         </div>
       </section>
-      <Definition title="See the coefficient-to-term table">
-        <div className="table-scroll">
-          <table className="math-table">
-            <thead>
-              <tr>
-                <th>Position</th>
-                <th>Coefficient</th>
-                <th>Term</th>
-              </tr>
-            </thead>
-            <tbody>
-              {e.coefficients.map((value, index) => (
-                <tr key={index}>
-                  <td>{index}</td>
-                  <td>{value}</td>
-                  <td>
-                    <MathText>{termTex(value, index, true)}</MathText>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <MathText block>{'p(X)=\\sum_{i=0}^{k-1}a_iX^i,\\qquad \\deg(p)<k'}</MathText>
-        <p>
-          The dimension k counts coefficient slots, including trailing zeros. A leading zero can
-          lower the actual degree without changing k. All arithmetic is modulo {e.q}.
-        </p>
-      </Definition>
     </>
   );
 }

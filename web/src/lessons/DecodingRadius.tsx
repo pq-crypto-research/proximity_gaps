@@ -32,7 +32,7 @@ export default function DecodingRadius() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(4);
   const k = e.coefficients.length;
-  const { d, t } = parameters(k, e.n);
+  const { t } = parameters(k, e.n);
   const radius = e.linked ? errors : e.radius;
   const book = useMemo(() => codebook(e.q, k, e.n), [e.q, k, e.n]);
   const distances = useMemo(
@@ -290,48 +290,6 @@ export default function DecodingRadius() {
         <p>
           The reference c lets you see how changing a table affects its neighbors. A STARK verifier
           is not given a trusted reference polynomial.
-        </p>
-      </Definition>
-      <Definition title="What the list guarantees">
-        <MathText block>{'\\Lambda(C,w,E)=\\{c\\in C:\\Delta(c,w)\\le E\\}'}</MathText>
-        <p>
-          The list contains all codewords within the radius, including any that are farther away
-          than the nearest one. If the transmitted codeword suffered at most E errors, it is in this
-          list. Without that assumption, the original codeword can be outside it.
-        </p>
-        <p>
-          List decoding does not select the original message when several candidates remain.
-          Selecting one requires additional information. It also does not give each candidate a
-          probability.
-        </p>
-        <p>
-          For a fixed received word, increasing E cannot shrink the list. A large radius may produce
-          a large list. Coding theory asks for bounds that hold for every received word, not just
-          the example shown here.
-        </p>
-        <p>
-          This small demo finds candidates by checking the codebook when feasible. Efficient
-          algebraic list-decoding algorithms are a separate topic.
-        </p>
-      </Definition>
-      <Definition title="Uniqueness, distance, and STARK soundness">
-        <MathText block>
-          {'d=' + d + ',\\qquad t=\\left\\lfloor\\frac{d-1}{2}\\right\\rfloor=' + t}
-        </MathText>
-        <p>
-          If two codewords were both within distance t of w, their mutual distance would be at most
-          2t, less than d. This guarantees at most one nearby codeword, not that a codeword exists.
-        </p>
-        <p>
-          A unique nearby polynomial does not establish a valid STARK proof. The full protocol also
-          checks commitments and computation constraints. Lists enter the soundness analysis; the
-          ordinary verifier does not enumerate them.
-        </p>
-        <p>
-          Distances here are measured from the center w. Angles and distances between other plotted
-          points have no mathematical meaning. Full enumeration is bounded at 10,000 codewords and
-          250,000 coordinate evaluations. Some counts can still be determined exactly by
-          interpolation or minimum distance.
         </p>
       </Definition>
     </>

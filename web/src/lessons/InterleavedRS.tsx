@@ -1,14 +1,14 @@
 import { ArrowDown, ArrowRight, Plus, Minus } from 'lucide-react';
 import { MathText } from '../components/Math';
 import { Tape } from '../components/Tape';
-import { Definition, Stat } from '../components/Controls';
+import { Stat } from '../components/Controls';
 import { columnAgreement, interleave } from '../core/agreement';
 import { mod, polynomialTex } from '../core/math';
 import { useExperiment } from '../state/ExperimentContext';
 import './ResearchLessons.css';
 
 export default function InterleavedRS() {
-  const { experiment: e, patch, setExample, navigate } = useExperiment();
+  const { experiment: e, patch, setExample } = useExperiment();
   const settings = e.interleaving ?? {
     messages: [
       [1, 1],
@@ -297,25 +297,6 @@ export default function InterleavedRS() {
           to “Compare errors” to see why shared positions matter.
         </p>
       )}
-      <Definition title="Why the intersection matters">
-        <p>
-          For each row, let <MathText>{'T_j=\\{x:p_j(x)=w_j(x)\\}'}</MathText>. A column agrees
-          exactly on <MathText>{'T=\\bigcap_j T_j'}</MathText>, so the interleaved distance is{' '}
-          <MathText>{'\\Delta=n-|T|'}</MathText>.
-        </p>
-        <p>
-          Separate rows can each be close to an RS codeword while agreeing on different positions.
-          Mutual agreement needs the same positions for every row. This comparison uses the
-          displayed reference matrix; it does not search for the nearest interleaved codeword.
-        </p>
-        <p>
-          Identifying a column with an extension-field element requires a basis. It does not
-          automatically enlarge the field from which a protocol samples its challenge.
-        </p>
-        <button className="text-button" onClick={() => navigate('mutual-correlated-agreement')}>
-          Explore MCA <ArrowRight size={15} />
-        </button>
-      </Definition>
     </div>
   );
 }

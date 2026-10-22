@@ -2200,3 +2200,39 @@
     }
   }
 }
+
+@layer components {
+  .experiment-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .experiment-actions .text-button {
+    font-size: 10px;
+  }
+  .reference-nav-link[aria-current='page'] {
+    color: var(--green-dark);
+    font-weight: 600;
+  }
+}
+
+@layer components {
+  .coefficient-heading h2 {
+    margin: 0 0 6px;
+    font: 400 32px/1.2 var(--serif);
+  }
+  .coefficient-heading p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .coefficient-heading .coefficient-context {
+    margin-top: 12px;
+    max-width: 760px;
+    padding-left: 12px;
+    border-left: 2px solid #c8d6be;
+    font-size: 12px;
+    line-height: 1.65;
+  }
+}

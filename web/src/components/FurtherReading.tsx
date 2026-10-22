@@ -46,7 +46,7 @@ const papers = [
   },
 ];
 
-export function FurtherReading() {
+export function FurtherReading({ title = 'Further reading' }: { title?: string }) {
   return (
     <section
       id="further-reading"
@@ -54,7 +54,7 @@ export function FurtherReading() {
       aria-labelledby="further-reading-title"
       tabIndex={-1}
     >
-      <h2 id="further-reading-title">Further reading</h2>
+      <h2 id="further-reading-title">{title}</h2>
       <p className="further-reading-intro">
         Papers behind the experiments, from Reed–Solomon codes to mutual correlated agreement.
       </p>

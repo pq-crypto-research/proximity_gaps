@@ -2,7 +2,7 @@ import { RotateCcw, WandSparkles } from 'lucide-react';
 import { useExperiment } from '../state/ExperimentContext';
 import { MathText } from '../components/Math';
 import { WordComparison } from '../components/WordComparison';
-import { Definition, Slider, Stat } from '../components/Controls';
+import { Slider, Stat } from '../components/Controls';
 import { BallScene } from '../visuals/BallScene';
 
 export default function HammingDistance() {
@@ -81,16 +81,6 @@ export default function HammingDistance() {
           </div>
         </div>
       </section>
-      <Definition>
-        <MathText block>
-          {'\\Delta(c,w)=|\\{i:c_i\\ne w_i\\}|,\\qquad \\delta(c,w)=\\frac{\\Delta(c,w)}n'}
-        </MathText>
-        <p>
-          Hamming distance counts unequal symbols. Changing one wrong symbol to a different wrong
-          symbol keeps the distance fixed. Restoring it to the reference value decreases the
-          distance by one.
-        </p>
-      </Definition>
     </>
   );
 }

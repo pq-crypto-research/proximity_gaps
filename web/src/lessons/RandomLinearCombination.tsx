@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Check, RotateCcw, Shuffle } from 'lucide-react';
-import { Definition, Slider } from '../components/Controls';
+import { Slider } from '../components/Controls';
 import { MathText } from '../components/Math';
 import { Tape } from '../components/Tape';
 import {
@@ -234,25 +234,6 @@ export default function RandomLinearCombination() {
           </p>
         </div>
       </section>
-
-      <Definition title="Why can two non-codewords make a codeword?">
-        <p>
-          This code uses <MathText>{'D=\\{1,2,4,8,16,15,13,9\\}'}</MathText> over{' '}
-          <MathText>{'\\mathbb F_{17}'}</MathText>. Its codewords are the evaluations of{' '}
-          <MathText>{'p(X)=a+bX'}</MathText>, including constant and zero polynomials.
-        </p>
-        <p>
-          In the starting example, f matches p(X) = X except at x = 16, where its value is 1. The
-          vector g is zero except at that same point, where its value is 5. Choosing α = 3 repairs
-          that entry: 1 + 3 × 5 = 16. Neither input is a codeword, but their combination is.
-        </p>
-        <p>
-          If two distinct choices of α produced codewords, subtracting them would show that g is a
-          codeword, and then f would be one too. So if either input is not a codeword, at most one
-          of the 17 choices can produce a codeword. If both inputs are codewords, every choice
-          works.
-        </p>
-      </Definition>
     </div>
   );
 }

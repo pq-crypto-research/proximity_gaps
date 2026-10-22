@@ -61,8 +61,8 @@ it('connects editable tapes, alpha, codeword presets, reset, and saved links', a
   const navigation = within(screen.getByRole('navigation', { name: 'Experiments' })).getAllByRole(
     'link',
   );
-  expect(navigation[6]).toHaveAccessibleName('07 Random Linear Combination');
-  expect(navigation[7]).toHaveAccessibleName('08 MCA');
+  expect(navigation[7]).toHaveAccessibleName('08 Random Linear Combination');
+  expect(navigation[8]).toHaveAccessibleName('09 MCA');
 
   fireEvent.change(screen.getByRole('spinbutton', { name: 'Vector g, position 1' }), {
     target: { value: '7' },

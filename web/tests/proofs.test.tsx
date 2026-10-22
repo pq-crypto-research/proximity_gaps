@@ -20,7 +20,7 @@ describe('from codes to proofs', () => {
     const { container } = start();
     const traceValue = await screen.findByRole('spinbutton', { name: 'Trace values, position 2' });
     expect(traceValue).toHaveValue(10);
-    expect(screen.getByRole('link', { name: '09 From codes to proofs' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: '11 From codes to proofs' })).toHaveAttribute(
       'aria-current',
       'page',
     );
@@ -84,7 +84,8 @@ describe('from codes to proofs', () => {
     await user.selectOptions(screen.getByRole('combobox', { name: 'FRI challenge' }), '5');
     expect(within(folded).getByLabelText('Opened at x=4: 0')).toBeInTheDocument();
     expect(container.querySelector('.katex-error')).toBeNull();
-    await user.click(screen.getByRole('button', { name: /Explore the definition/ }));
+    await user.click(screen.getByRole('link', { name: 'Further reading' }));
+    await user.click(await screen.findByRole('button', { name: 'From codes to proofs' }));
     const dialog = await screen.findByRole('dialog', { name: 'Read the notes' });
     expect(within(dialog).getByRole('link', { name: /Download full note/ })).toHaveAttribute(
       'download',

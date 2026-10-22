@@ -3,7 +3,7 @@ import { BINARY_WORDS, binaryWord, distance, ballSize } from '../core/math';
 import { useExperiment } from '../state/ExperimentContext';
 import { MathText } from '../components/Math';
 import { Tape } from '../components/Tape';
-import { Definition, Eyebrow, Slider, Stat, Toggle } from '../components/Controls';
+import { Eyebrow, Slider, Stat, Toggle } from '../components/Controls';
 import { BallScene } from '../visuals/BallScene';
 
 export default function HammingBall() {
@@ -129,62 +129,6 @@ export default function HammingBall() {
           </div>
         </div>
       </section>
-      <Definition>
-        <MathText block>{'B(w,E)=\\{y\\in\\mathbb{F}^n:\\Delta(y,w)\\le E\\}'}</MathText>
-        <p>
-          A shell contains words at exactly one distance. A ball includes all shells up to its
-          radius.
-        </p>
-        <MathText block>{'|B(w,E)|=\\sum_{j=0}^{E}\\binom{n}{j}(q-1)^j'}</MathText>
-        <div className="table-scroll">
-          <table className="math-table">
-            <thead>
-              <tr>
-                <th>Radius</th>
-                <th>Words in the ball</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Array.from({ length: 6 }, (_, radius) => (
-                <tr key={radius}>
-                  <td>{radius}</td>
-                  <td>{ballSize(5, 2, radius)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <details>
-          <summary>All words and their exact distances</summary>
-          <div className="table-scroll">
-            <table className="math-table">
-              <thead>
-                <tr>
-                  <th>Word</th>
-                  <th>Distance</th>
-                  <th>Membership</th>
-                </tr>
-              </thead>
-              <tbody>
-                {points.map((point) => (
-                  <tr key={point.id}>
-                    <td>
-                      <button className="text-button" onClick={point.onSelect}>
-                        {point.label}
-                      </button>
-                    </td>
-                    <td>{point.distance}</td>
-                    <td>
-                      {point.distance <= e.ballRadius ? 'Inside' : 'Outside'}
-                      {point.codeword ? ' · codeword' : ''}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </details>
-      </Definition>
     </>
   );
 }

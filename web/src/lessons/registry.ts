@@ -11,36 +11,61 @@ export type LessonDefinition = {
   question: string;
   noteSection: string;
   noteSource?: 'stark' | 'soundness';
-  parameterMode?: 'mca' | 'linear-combination';
+  parameterMode?: 'mca' | 'linear-combination' | 'prize' | 'message';
   component: LazyExoticComponent<ComponentType>;
 };
 
 export const lessons: LessonDefinition[] = [
   {
-    id: 'tape-polynomial',
+    id: 'message-interpolation',
     number: '01',
-    title: 'A message, a polynomial.',
-    shortTitle: 'Tape to polynomial',
+    title: 'Message interpolation',
+    shortTitle: 'Message interpolation',
     group: 'Encoding',
-    description: 'Every number has a place. Together, they describe a polynomial.',
-    question: 'How does a message become mathematics?',
+    description: 'Interpolate a polynomial through five editable message values.',
+    question: 'Which polynomial passes through every message value?',
     noteSection: '1. Reed-Solomon Codes: The Basic Idea',
-    component: lazy(() => import('./TapePolynomial')),
+    parameterMode: 'message',
+    component: lazy(() => import('./MessageInterpolation')),
   },
   {
     id: 'evaluation-codeword',
     number: '02',
-    title: 'A little more redundancy.',
-    shortTitle: 'Build a codeword',
+    title: 'Message to codeword',
+    shortTitle: 'Message to codeword',
     group: 'Encoding',
-    description: 'Evaluate one polynomial at many points. The results form a codeword.',
-    question: 'What do the extra symbols buy us?',
+    description: 'Interpolate the message, then add evaluations to recover lost data.',
+    question: 'What do the extra evaluations buy us?',
     noteSection: '1. Reed-Solomon Codes: The Basic Idea',
+    parameterMode: 'message',
     component: lazy(() => import('./EvaluationCodeword')),
   },
   {
-    id: 'hamming-distance',
+    id: 'tape-polynomial',
     number: '03',
+    title: 'Coefficients to polynomial',
+    shortTitle: 'Coefficients to polynomial',
+    group: 'Encoding',
+    description: 'An alternative encoding: use the entries as polynomial coefficients.',
+    question: 'How do coefficients describe a polynomial?',
+    noteSection: '1. Reed-Solomon Codes: The Basic Idea',
+    component: lazy(() => import('./TapePolynomial')),
+  },
+  {
+    id: 'interleaved-rs',
+    number: '04',
+    title: 'Interleaved Reed–Solomon codes',
+    shortTitle: 'Interleaved RS',
+    group: 'Encoding',
+    description: 'Encode each message, then read the matrix one column at a time.',
+    question: 'When does an entire column agree?',
+    noteSection: 'Interleaving and common agreement support',
+    noteSource: 'soundness',
+    component: lazy(() => import('./InterleavedRS')),
+  },
+  {
+    id: 'hamming-distance',
+    number: '05',
     title: 'Count what changed.',
     shortTitle: 'Measure errors',
     group: 'Distance & decoding',
@@ -51,7 +76,7 @@ export const lessons: LessonDefinition[] = [
   },
   {
     id: 'hamming-ball',
-    number: '04',
+    number: '06',
     title: 'A neighborhood of words.',
     shortTitle: 'Grow a Hamming ball',
     group: 'Distance & decoding',
@@ -62,7 +87,7 @@ export const lessons: LessonDefinition[] = [
   },
   {
     id: 'decoding-radius',
-    number: '05',
+    number: '07',
     title: 'List decoding',
     shortTitle: 'List decoding',
     group: 'Distance & decoding',
@@ -73,20 +98,8 @@ export const lessons: LessonDefinition[] = [
     component: lazy(() => import('./DecodingRadius')),
   },
   {
-    id: 'interleaved-rs',
-    number: '06',
-    title: 'Interleaved Reed–Solomon codes',
-    shortTitle: 'Interleaved RS',
-    group: 'Agreement & soundness',
-    description: 'Encode each message, then read the matrix one column at a time.',
-    question: 'When does an entire column agree?',
-    noteSection: 'Interleaving and common agreement support',
-    noteSource: 'soundness',
-    component: lazy(() => import('./InterleavedRS')),
-  },
-  {
     id: 'random-linear-combination',
-    number: '07',
+    number: '08',
     title: 'Random linear combination',
     shortTitle: 'Random Linear Combination',
     group: 'Agreement & soundness',
@@ -99,7 +112,7 @@ export const lessons: LessonDefinition[] = [
   },
   {
     id: 'mutual-correlated-agreement',
-    number: '08',
+    number: '09',
     title: 'Mutual correlated agreement',
     shortTitle: 'MCA',
     group: 'Agreement & soundness',
@@ -111,8 +124,22 @@ export const lessons: LessonDefinition[] = [
     component: lazy(() => import('./MutualAgreement')),
   },
   {
+    id: 'proximity-prize',
+    number: '10',
+    title: 'Proximity Prize',
+    shortTitle: 'Proximity Prize',
+    group: 'Agreement & soundness',
+    description:
+      'Vary delta and compute the exact worst-case MCA error for a tiny smooth-domain code.',
+    question: 'How much error can we allow while keeping every input pair below a target?',
+    noteSection: 'Mutual correlated agreement',
+    noteSource: 'soundness',
+    parameterMode: 'prize',
+    component: lazy(() => import('./ProximityPrize')),
+  },
+  {
     id: 'codes-to-proofs',
-    number: '09',
+    number: '11',
     title: 'From codes to proofs',
     shortTitle: 'From codes to proofs',
     group: 'STARKs',
@@ -124,3 +151,15 @@ export const lessons: LessonDefinition[] = [
     component: lazy(() => import('./CodesToProofs')),
   },
 ];
+
+export const referencePage: LessonDefinition = {
+  id: 'further-reading',
+  number: '',
+  title: 'Further reading',
+  shortTitle: 'Further reading',
+  group: 'Reference',
+  description: 'Definitions, notes, and papers.',
+  question: '',
+  noteSection: '',
+  component: lazy(() => import('./FurtherReadingPage')),
+};

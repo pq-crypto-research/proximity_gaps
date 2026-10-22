@@ -1,0 +1,365 @@
+@layer components {
+  .prize-lesson {
+    gap: 8px;
+  }
+  .prize-overview-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 8px 14px 6px;
+  }
+  .prize-overview-heading h3 {
+    font-size: 17px;
+    margin-bottom: 2px;
+  }
+  .prize-overview-heading p,
+  .prize-target-label {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .prize-target-label {
+    flex-shrink: 0;
+    padding: 6px 10px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+  }
+  .prize-target-label strong {
+    color: var(--ink);
+  }
+  .prize-profile-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+    padding: 2px 14px;
+  }
+  .prize-profile-grid button {
+    display: grid;
+    justify-items: center;
+    gap: 3px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 5px 4px;
+    font-size: 10px;
+  }
+  .prize-profile-grid button:hover {
+    border-color: currentColor;
+  }
+  .prize-profile-grid button[aria-pressed='true'] {
+    outline: 2px solid currentColor;
+    outline-offset: 1px;
+  }
+  .prize-profile-safe {
+    color: var(--green-dark);
+  }
+  .prize-profile-bad {
+    color: #a2352c;
+  }
+  .prize-profile-grid strong {
+    font-size: 12px;
+  }
+  .prize-profile-grid strong span {
+    font-size: 10px;
+    font-weight: 400;
+  }
+  .prize-profile-bar {
+    display: flex;
+    align-items: flex-end;
+    width: 24px;
+    height: 26px;
+    background: var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .prize-profile-bar i {
+    width: 100%;
+    background: currentColor;
+  }
+  .prize-chart-caption {
+    font-size: 10px;
+    color: var(--muted);
+    padding: 5px 14px 6px;
+  }
+  .prize-delta-control {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 6px 14px;
+    border-top: 1px solid var(--line);
+  }
+  .prize-delta-control > .math {
+    font-size: 17px;
+    min-width: 65px;
+  }
+  .prize-delta-control .slider-control {
+    flex: 1;
+    margin: 0;
+  }
+  .prize-delta-control .control-heading {
+    margin-bottom: 4px;
+  }
+  .prize-delta-control .slider-endpoints {
+    margin-top: 3px;
+  }
+  .prize-threshold {
+    display: grid;
+    gap: 4px;
+    min-width: 210px;
+  }
+  .prize-threshold > span:last-child {
+    color: var(--muted);
+    font-size: 10px;
+  }
+  .prize-target-result {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    padding: 6px 14px;
+    font-size: 11px;
+    border-top: 1px solid var(--line);
+  }
+  .prize-target-safe {
+    background: var(--green-soft);
+    color: var(--green-dark);
+  }
+  .prize-target-exceeded {
+    background: #fff0ee;
+    color: #a2352c;
+  }
+  .prize-pair-heading {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .prize-pair-heading h3 {
+    font-size: 16px;
+  }
+  .prize-pair-heading > span {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .prize-pair-heading strong {
+    color: var(--ink);
+  }
+  .main-content:has(.prize-lesson) {
+    padding-top: 22px;
+  }
+  .main-content:has(.prize-lesson) .parameter-strip {
+    min-height: 38px;
+    margin: 10px 0 12px;
+  }
+  .prize-lesson .mca-heading h2 {
+    font-size: 28px;
+    margin-bottom: 3px;
+  }
+  .prize-lesson .mca-heading p {
+    font-size: 12px;
+  }
+  .prize-lesson .panel-topline {
+    padding: 7px 14px;
+  }
+  .prize-lesson .mca-actions {
+    gap: 12px;
+  }
+  .prize-lesson .mca-actions .text-button {
+    font-size: 10px;
+  }
+  .prize-lesson .mca-board-toolbar {
+    padding: 6px 14px 3px;
+  }
+  .prize-lesson .mca-legend,
+  .prize-lesson .mca-board-toolbar .toggle {
+    font-size: 9px;
+  }
+  .prize-lesson .mca-tape-scroll {
+    padding-inline: 10px;
+  }
+  .prize-lesson .mca-label-column {
+    width: 40px;
+  }
+  .prize-lesson .mca-meta-column {
+    width: 200px;
+  }
+  .prize-lesson .mca-tape-table {
+    min-width: 490px;
+  }
+  .prize-lesson .mca-tape-table thead th {
+    padding: 3px;
+    font-size: 9px;
+  }
+  .prize-lesson .mca-tape-table tbody th {
+    font-size: 14px;
+  }
+  .prize-lesson .mca-pair td {
+    padding: 2px 3px;
+  }
+  .prize-lesson .mca-tape-table .mca-cell {
+    height: 24px;
+    font-size: 12px;
+  }
+  .prize-lesson .mca-pair tr:last-child td,
+  .prize-lesson .mca-pair tr:last-child th {
+    padding-bottom: 5px;
+  }
+  .prize-lesson .mca-tape-table td.mca-row-meta {
+    padding-left: 10px;
+    font-size: 9px;
+    line-height: 1.3;
+  }
+  .prize-lesson .mca-row-meta > small {
+    font-size: 9px;
+  }
+  .prize-lesson .mca-alpha-control {
+    padding: 4px 8px;
+    gap: 16px;
+  }
+  .prize-lesson .mca-alpha-value {
+    font-size: 16px;
+    gap: 6px;
+  }
+  .prize-lesson .mca-alpha-value .tape-column {
+    width: 29px;
+  }
+  .prize-lesson .mca-alpha-value .tape-cell {
+    height: 27px;
+    font-size: 13px;
+  }
+  .prize-lesson .mca-challenge-buttons {
+    flex: 1;
+  }
+  .prize-lesson .mca-challenge-buttons button {
+    width: 29px;
+    height: 26px;
+    font-size: 11px;
+  }
+  .prize-lesson .mca-random {
+    padding: 5px 8px;
+    font-size: 10px;
+  }
+  .prize-lesson .mca-tape-table .mca-alpha-cell {
+    padding-bottom: 5px;
+  }
+  .prize-lesson .mca-tape-table tfoot td,
+  .prize-lesson .mca-tape-table tfoot th {
+    padding-block: 1px;
+    font-size: 10px;
+  }
+  .prize-lesson .mca-support-summary {
+    padding: 4px 14px 6px;
+    font-size: 9px;
+  }
+  .prize-lesson .mca-domain-sets {
+    gap: 2px;
+  }
+  .prize-lesson .mca-verdict {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    padding: 7px 14px;
+  }
+  .prize-lesson .mca-verdict > strong {
+    font-size: 11px;
+  }
+  .prize-lesson .mca-verdict > p {
+    font-size: 10px;
+    margin: 0;
+  }
+  .prize-probability-note {
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.6;
+    padding: 0 2px;
+  }
+  .prize-lesson .definition > summary {
+    padding-block: 12px;
+  }
+  .prize-explainer {
+    padding: 8px 0;
+  }
+  .prize-explainer h3 {
+    font-size: 20px;
+    margin-bottom: 5px;
+  }
+  .prize-explainer p {
+    font-size: 12px;
+    line-height: 1.8;
+    color: var(--muted);
+    margin-top: 10px;
+  }
+  .prize-explainer a {
+    color: var(--green-dark);
+    text-decoration: underline;
+  }
+  .prize-explainer > .math-block {
+    text-align: left;
+    overflow-x: auto;
+    margin: 14px 0;
+  }
+}
+@layer responsive {
+  @media (max-width: 760px) {
+    .prize-overview-heading {
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px 14px 8px;
+    }
+    .prize-overview-heading h3 {
+      font-size: 18px;
+    }
+    .prize-delta-control {
+      flex-wrap: wrap;
+      padding: 10px 14px;
+      gap: 12px;
+    }
+    .prize-threshold {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .prize-profile-grid {
+      padding-inline: 14px;
+      gap: 5px;
+    }
+    .prize-profile-grid button {
+      font-size: 10px;
+    }
+    .prize-profile-grid strong {
+      font-size: 12px;
+    }
+    .prize-profile-grid strong span {
+      display: block;
+      font-size: 9px;
+    }
+    .prize-chart-caption,
+    .prize-target-result,
+    .prize-lesson .mca-verdict {
+      padding-inline: 14px;
+    }
+    .prize-lesson .panel-topline {
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .prize-pair-heading {
+      gap: 6px 14px;
+    }
+  }
+}
+
+@layer components {
+  .prize-profile-grid small {
+    color: var(--muted);
+    font-size: 9px;
+  }
+  .prize-lesson .mca-actions .toggle {
+    font-size: 10px;
+  }
+}

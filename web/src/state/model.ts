@@ -1,17 +1,22 @@
 import { encode, SUPPORTED_FIELDS } from '../core/math';
 import { MCA_PRESETS, type McaSettings } from '../core/agreement';
 import { RLC_DOMAIN, RLC_Q, type LinearCombinationSettings } from '../core/linearCombination';
+import type { PrizeSettings } from '../core/proximityPrize';
+import { MESSAGE_K, MESSAGE_MAX_N, MESSAGE_Q, type MessageSettings } from '../core/message';
 
 export const LESSON_IDS = [
-  'tape-polynomial',
+  'message-interpolation',
   'evaluation-codeword',
+  'tape-polynomial',
+  'interleaved-rs',
   'hamming-distance',
   'hamming-ball',
   'decoding-radius',
-  'interleaved-rs',
   'random-linear-combination',
   'mutual-correlated-agreement',
+  'proximity-prize',
   'codes-to-proofs',
+  'further-reading',
 ] as const;
 export type LessonId = (typeof LESSON_IDS)[number];
 
@@ -54,7 +59,9 @@ export type Experiment = {
     corrupt: boolean;
   };
   mca?: McaSettings;
+  prize?: PrizeSettings;
   linearCombination?: LinearCombinationSettings;
+  message?: MessageSettings;
 };
 
 export function defaultExperiment(q = 17): Experiment {
@@ -87,6 +94,55 @@ export function validExperiment(value: unknown): value is Experiment {
   const s = value as Record<string, unknown>;
   if (!SUPPORTED_FIELDS.includes(s.q as 5 | 7 | 17)) return false;
   const q = s.q as number;
+  if (s.message !== undefined) {
+    if (!s.message || typeof s.message !== 'object') return false;
+    const message = s.message as Record<string, unknown>;
+    if (
+      !Array.isArray(message.values) ||
+      message.values.length !== MESSAGE_K ||
+      !message.values.every((value) => integer(value, 0, MESSAGE_Q - 1)) ||
+      !integer(message.n, MESSAGE_K, MESSAGE_MAX_N)
+    )
+      return false;
+    if (
+      message.kept !== undefined &&
+      (!Array.isArray(message.kept) ||
+        message.kept.length !== MESSAGE_K ||
+        new Set(message.kept).size !== MESSAGE_K ||
+        !message.kept.every((x) => integer(x, 0, (message.n as number) - 1)))
+    )
+      return false;
+    if (message.channel !== undefined) {
+      if (!message.channel || typeof message.channel !== 'object') return false;
+      const channel = message.channel as Record<string, unknown>;
+      if (
+        !['loss', 'errors'].includes(channel.mode as string) ||
+        !integer(channel.count, 0, message.n as number) ||
+        !integer(channel.seed, 1, 0xffffffff)
+      )
+        return false;
+      if (
+        channel.received !== undefined &&
+        (!Array.isArray(channel.received) ||
+          channel.received.length !== message.n ||
+          !channel.received.every((value) => value === null || integer(value, 0, MESSAGE_Q - 1)))
+      )
+        return false;
+    }
+  }
+  if (s.prize !== undefined) {
+    if (!s.prize || typeof s.prize !== 'object') return false;
+    const prize = s.prize as Record<string, unknown>;
+    if (
+      ![prize.f, prize.g].every(
+        (row) => Array.isArray(row) && row.length === 4 && row.every((a) => integer(a, 0, 4)),
+      ) ||
+      !integer(prize.alpha, 0, 4) ||
+      !integer(prize.radius, 0, 4) ||
+      (prize.followWorst !== undefined && typeof prize.followWorst !== 'boolean')
+    )
+      return false;
+  }
   if (s.linearCombination !== undefined) {
     if (!s.linearCombination || typeof s.linearCombination !== 'object') return false;
     const settings = s.linearCombination as Record<string, unknown>;

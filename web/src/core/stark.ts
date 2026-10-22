@@ -1,7 +1,8 @@
 import { mod, SUPPORTED_FIELDS } from './math';
 
 function assertField(q: number) {
-  if (!SUPPORTED_FIELDS.includes(q as 5 | 7 | 17)) throw new RangeError('Unsupported field.');
+  if (q !== 257 && !SUPPORTED_FIELDS.includes(q as 5 | 7 | 17))
+    throw new RangeError('Unsupported field.');
 }
 
 export function power(base: number, exponent: number, q: number): number {
